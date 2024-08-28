@@ -1,7 +1,9 @@
-import Router from "express";
+import { Router } from "express";
+import { validatePassword } from "../controllers/controllers.js";
 
-const ruta = Router();
+const router = Router();
 
-ruta.use("/");
+// Ruta para validar la contraseña
+router.post('/validate-password', validatePassword);
 
-export default ruta
+export default router;
