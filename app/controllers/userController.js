@@ -62,3 +62,58 @@ export const crearUsuario = async (req, res) => {
         error(req, res, 500, "Error interno del servidor al crear usuario");
     }
 };
+export const logueoUsuario = async(req, res) => {
+    const { usuario, contrasena } = req.body;
+    console.log(usuario + contrasena);
+
+    try {
+        // Verificamos si el usuario existe
+        const rol = await basedatos.query(`CALL SP_VerificarUsuario(?)`, [usuario]);
+        const respuesta = await basedatos.query(`CALL SP_BuscarUsuario(?)`, [usuario]);
+
+        // Si el usuario no existe, devolvemos un error
+        if (!respuesta || respuesta[0][0] == 0) {
+            error(req, res, 404, "Usuario no existe");
+            return;
+        }
+
+        // Obtenemos la contraseña hasheada del resultado
+        const password = respuesta[0][0].contrasena;
+        
+        // Verificamos si la contraseña está definida
+        if (!password) {
+            console.log();
+            error(req, res, 404, "Contraseña no encontrada");
+            return;
+        }
+
+        // Comparamos la contraseña proporcionada con la almacenada
+        const match = await bcrypt.compare(contrasena, password);
+        
+        // Si no coinciden, devolvemos un error
+        if (!match) {
+            error(req, res, 401, "Contraseña Incorrecta");
+            return;
+        }
+
+        let payload = {
+            "usuario": respuesta[0][0].usuario,
+        }; 
+
+        let token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
+            expiresIn: process.env.TOKEN_EXPIRES_IN
+        });
+
+        /*
+        if (rol[0][0]?.rol === "Administrador") {
+            success(req, res, 200, { token, "rol": "/" });
+        } else if (rol[0][0]?.rol === "Usuario") {
+            success(req, res, 200, { token, "rol": "/" });
+        }
+        */
+
+    } catch (e) {
+        error(req, res, 500, "Error en el servidor, por favor inténtalo de nuevo más tarde");
+        console.log(e);
+    }
+}
