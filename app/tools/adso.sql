@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:8889
--- Tiempo de generación: 27-08-2024 a las 23:42:50
+-- Tiempo de generación: 28-08-2024 a las 14:51:01
 -- Versión del servidor: 5.7.39
 -- Versión de PHP: 8.2.0
 
@@ -60,6 +60,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `ObtenerPanelControlUsuarios` ()   B
         estado e ON u.id_estado = e.id
     ORDER BY 
         u.id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CrearUsuario` (IN `_nombre_usuario` VARCHAR(255), IN `_nombre` VARCHAR(255), IN `_contrasena_hash` VARCHAR(255), IN `_email` VARCHAR(255))   BEGIN
+
+INSERT INTO usuario(nombre_usuario, nombre, contrasena_hash, email)
+VALUES (_nombre_usuario, _nombre, _contrasena_hash, _email);
+
 END$$
 
 DELIMITER ;
@@ -350,8 +357,8 @@ CREATE TABLE `terminos_condiciones` (
 
 CREATE TABLE `usuario` (
   `id` int(11) NOT NULL,
-  `id_rol` int(11) DEFAULT NULL,
-  `id_estado` int(11) DEFAULT NULL,
+  `id_rol` int(11) DEFAULT '2',
+  `id_estado` int(11) DEFAULT '1',
   `nombre_usuario` varchar(255) NOT NULL,
   `nombre` varchar(255) NOT NULL,
   `contrasena_hash` varchar(255) NOT NULL,
@@ -383,7 +390,10 @@ INSERT INTO `usuario` (`id`, `id_rol`, `id_estado`, `nombre_usuario`, `nombre`, 
 (17, 2, 1, 'felipevera', 'Felipe Vera', 'e9617585d8cb84ad6d689b92a6624f5ed1d63a1b8c4576214e7db2f0de29829e', 'felipe@example.com', '2024-08-27 20:05:17'),
 (18, 2, 1, 'danielaortiz', 'Daniela Ortiz', '77405a3bc06098874a109f719d9aa3b7d40e2878a35b7e092f7cd63adaa8a3ac', 'daniela@example.com', '2024-08-27 20:05:17'),
 (19, 2, 1, 'emanuelvargas', 'Emanuel Vargas', '20d8b30f813d7205e1d9471c0de75c7dbb54485e9b03c551d10b46399beeedd1', 'emanuel@example.com', '2024-08-27 20:05:17'),
-(20, 2, 1, 'carolinarios', 'Carolina Ríos', 'ef74c1f9968feb4bbe440b721c8da8b953c55d0c59fb486de83a72d01db73a5b', 'carolina@example.com', '2024-08-27 20:05:17');
+(20, 2, 1, 'carolinarios', 'Carolina Ríos', 'ef74c1f9968feb4bbe440b721c8da8b953c55d0c59fb486de83a72d01db73a5b', 'carolina@example.com', '2024-08-27 20:05:17'),
+(21, 2, 1, 'juancho', 'sebastian', '123456', 'sebastinan@gmail.com', '2024-08-28 13:55:06'),
+(22, 2, 1, 'esneiderUser', 'esneider', '$2b$10$0uCEhOcu9hugqI5Kq21aw.MKfh/baN4Rfz8/O77TUxQFvIzU/ovvi', 'esneider@gmail.com', '2024-08-28 14:44:27'),
+(23, 2, 1, 'esneiderUser', 'esneider', '$2b$10$7oX8qoS9v5WOt9IupQx/IOUR.0/w7sc.HZGxyN7oEL8hebuWzcWLO', 'esneider@gmail.com', '2024-08-28 14:45:00');
 
 --
 -- Índices para tablas volcadas
@@ -571,7 +581,7 @@ ALTER TABLE `rol`
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- Restricciones para tablas volcadas
