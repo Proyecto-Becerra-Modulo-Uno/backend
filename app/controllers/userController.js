@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 export const listarUser = async(req, res) => {
     try {
-        const respuesta = await basedatos.query('CALL ObtenerPanelControlUsuarios();');
+        const respuesta = await basedatos.query('CALL SP_ObtenerPanelControlUsuarios();');
         success(req, res, 200, respuesta[0][0]);
     } catch (err) {
         error(req, res, 200, err || "Error interno del servidor")
@@ -68,7 +68,7 @@ export const logueoUsuario = async (req, res) => {
 
     try {
         // Verificar si el usuario existe y obtener su rol y contraseña
-        const [request] = await basedatos.query('CALL SP_VERIFICAR_ROLES(?)', [usuario]);
+        const [request] = await basedatos.query('CALL SP_Verificar_Roles(?)', [usuario]);
 
         if (request[0].length === 0) {
             console.log('Usuario no encontrado');
