@@ -77,7 +77,7 @@ export const logueoUsuario = async (req, res) => {
 
         // Obtener la información del usuario devuelta por el procedimiento
         const userData = request[0][0];
-        const { nombre_usuario, id_rol, contrasena_hash } = userData;
+        const { id_rol ,nombre_usuario, contrasena_hash, nombre, email } = userData;
 
         // Comparar la contraseña proporcionada con la almacenada
         const match = await bcrypt.compare(contrasena, contrasena_hash);
@@ -90,8 +90,10 @@ export const logueoUsuario = async (req, res) => {
 
         // Crear JWT payload y token
         const payload = {
+            rol: id_rol,
+            nombre: nombre,
+            correo: email,
             usuario: nombre_usuario,
-            rol: id_rol
         };
         const token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
             expiresIn: process.env.TOKEN_EXPIRES_IN,
