@@ -1,9 +1,19 @@
 import { Router } from "express";
 import { validatePassword } from "../controllers/controllers.js";
+import rutaAdmin from "./routes.admin";
+import userRout from "./userrout.js";
 
-const router = Router();
+const ruta = Router();
 
 // Ruta para validar la contraseña
-router.post('/validate-password', validatePassword);
+ruta.post('/validate-password', validatePassword);
 
-export default router;
+ruta.use('/users',userRout);
+
+ruta.use("/", (req, res) =>{
+    res.json({message:'hola mundo'})
+});
+
+ruta.use("/", rutaAdmin);
+
+export default ruta;
