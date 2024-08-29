@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: localhost:8889
--- Tiempo de generación: 28-08-2024 a las 14:51:01
--- Versión del servidor: 5.7.39
--- Versión de PHP: 8.2.0
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 28-08-2024 a las 18:11:28
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -62,10 +62,24 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `ObtenerPanelControlUsuarios` ()   B
         u.id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_BuscarUsuario` (IN `_nombre_usuario` VARCHAR(255))   BEGIN
+    -- Selecciona el usuario y la contraseña desde la tabla de usuarios
+    SELECT nombre_usuario, contrasena_hash
+    FROM usuario
+    WHERE nombre_usuario = _nombre_usuario
+    LIMIT 1;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CrearUsuario` (IN `_nombre_usuario` VARCHAR(255), IN `_nombre` VARCHAR(255), IN `_contrasena_hash` VARCHAR(255), IN `_email` VARCHAR(255))   BEGIN
 
 INSERT INTO usuario(nombre_usuario, nombre, contrasena_hash, email)
 VALUES (_nombre_usuario, _nombre, _contrasena_hash, _email);
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_VerificarUsuario` (IN `_nombre_usuario` VARCHAR(255))   BEGIN
+
+SELECT nombre_usuario FROM usuario WHERE nombre_usuario = _nombre_usuario;
 
 END$$
 
@@ -84,8 +98,8 @@ CREATE TABLE `administrador` (
   `nombre` varchar(255) NOT NULL,
   `contrasena_hash` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `administrador`
@@ -103,7 +117,7 @@ INSERT INTO `administrador` (`id`, `id_estado`, `nombre_admin`, `nombre`, `contr
 CREATE TABLE `estado` (
   `id` int(11) NOT NULL,
   `tipo_estado` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `estado`
@@ -125,7 +139,7 @@ CREATE TABLE `grupos` (
   `id` int(11) NOT NULL,
   `nombre` varchar(255) NOT NULL,
   `descripcion` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `grupos`
@@ -146,8 +160,8 @@ INSERT INTO `grupos` (`id`, `nombre`, `descripcion`) VALUES
 CREATE TABLE `historial_cambio_contrasena` (
   `id` int(11) NOT NULL,
   `id_usuario` int(11) DEFAULT NULL,
-  `fecha_cambio` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `fecha_cambio` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -158,10 +172,10 @@ CREATE TABLE `historial_cambio_contrasena` (
 CREATE TABLE `historial_sesion_usuario` (
   `id` int(11) NOT NULL,
   `usuario_id` int(11) DEFAULT NULL,
-  `fecha_inicio_sesion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_inicio_sesion` timestamp NOT NULL DEFAULT current_timestamp(),
   `direccion_ip` varchar(255) DEFAULT NULL,
   `dispositivo` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `historial_sesion_usuario`
@@ -182,7 +196,7 @@ CREATE TABLE `integrantes_grupo` (
   `id` int(11) NOT NULL,
   `id_grupo` int(11) DEFAULT NULL,
   `id_usuario` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `integrantes_grupo`
@@ -212,7 +226,7 @@ CREATE TABLE `lista_blanca` (
   `id` int(11) NOT NULL,
   `id_usuario` int(11) DEFAULT NULL,
   `direccion_ip` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -224,7 +238,7 @@ CREATE TABLE `lista_negra` (
   `id` int(11) NOT NULL,
   `id_usuario` int(11) DEFAULT NULL,
   `direccion_ip` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -235,10 +249,10 @@ CREATE TABLE `lista_negra` (
 CREATE TABLE `log_seguridad` (
   `id` int(11) NOT NULL,
   `usuario_id` int(11) DEFAULT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `tipo_evento` varchar(255) DEFAULT NULL,
   `descripcion` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `log_seguridad`
@@ -261,8 +275,8 @@ CREATE TABLE `politica_seguridad` (
   `intentos_fallidos_permitidos` int(11) DEFAULT NULL,
   `tiempo_expiracion_sesion` int(11) DEFAULT NULL,
   `autenticacion_dos_factores_obligatoria` tinyint(1) DEFAULT NULL,
-  `intervalos_cambio_contrasena` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `intervalos_cambio_contrasena` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `politica_seguridad`
@@ -280,7 +294,7 @@ INSERT INTO `politica_seguridad` (`id`, `longitud_minima_contrasena`, `intentos_
 CREATE TABLE `pregunta_seguridad` (
   `id` int(11) NOT NULL,
   `pregunta` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `pregunta_seguridad`
@@ -304,7 +318,7 @@ CREATE TABLE `respuesta` (
   `id_pregunta` int(11) DEFAULT NULL,
   `id_usuario` int(11) DEFAULT NULL,
   `respuesta` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `respuesta`
@@ -327,7 +341,7 @@ CREATE TABLE `rol` (
   `id` int(11) NOT NULL,
   `nombre` varchar(255) NOT NULL,
   `descripcion` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `rol`
@@ -347,7 +361,7 @@ INSERT INTO `rol` (`id`, `nombre`, `descripcion`) VALUES
 
 CREATE TABLE `terminos_condiciones` (
   `descripcion` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -357,14 +371,14 @@ CREATE TABLE `terminos_condiciones` (
 
 CREATE TABLE `usuario` (
   `id` int(11) NOT NULL,
-  `id_rol` int(11) DEFAULT '2',
-  `id_estado` int(11) DEFAULT '1',
+  `id_rol` int(11) DEFAULT 2,
+  `id_estado` int(11) DEFAULT 1,
   `nombre_usuario` varchar(255) NOT NULL,
   `nombre` varchar(255) NOT NULL,
   `contrasena_hash` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuario`
@@ -393,7 +407,8 @@ INSERT INTO `usuario` (`id`, `id_rol`, `id_estado`, `nombre_usuario`, `nombre`, 
 (20, 2, 1, 'carolinarios', 'Carolina Ríos', 'ef74c1f9968feb4bbe440b721c8da8b953c55d0c59fb486de83a72d01db73a5b', 'carolina@example.com', '2024-08-27 20:05:17'),
 (21, 2, 1, 'juancho', 'sebastian', '123456', 'sebastinan@gmail.com', '2024-08-28 13:55:06'),
 (22, 2, 1, 'esneiderUser', 'esneider', '$2b$10$0uCEhOcu9hugqI5Kq21aw.MKfh/baN4Rfz8/O77TUxQFvIzU/ovvi', 'esneider@gmail.com', '2024-08-28 14:44:27'),
-(23, 2, 1, 'esneiderUser', 'esneider', '$2b$10$7oX8qoS9v5WOt9IupQx/IOUR.0/w7sc.HZGxyN7oEL8hebuWzcWLO', 'esneider@gmail.com', '2024-08-28 14:45:00');
+(23, 2, 1, 'esneiderUser', 'esneider', '$2b$10$7oX8qoS9v5WOt9IupQx/IOUR.0/w7sc.HZGxyN7oEL8hebuWzcWLO', 'esneider@gmail.com', '2024-08-28 14:45:00'),
+(24, 2, 1, 'jhoan', 'lindo', '$2b$10$eX/tblR8QHKtS6bGxbZBg.MM1gi4vIqCEzP.tj7yeaaDcrQ6rbqmO', 'jhoan@gmail.com', '2024-08-28 15:55:41');
 
 --
 -- Índices para tablas volcadas
@@ -581,7 +596,7 @@ ALTER TABLE `rol`
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- Restricciones para tablas volcadas
