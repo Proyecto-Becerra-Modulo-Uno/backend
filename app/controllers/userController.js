@@ -104,3 +104,8 @@ export const logueoUsuario = async (req, res) => {
         return error(req, res, 500, 'Error en el servidor, por favor inténtalo de nuevo más tarde');
     }
 };
+
+
+export const validarToken = (req, res) =>{
+    success(req, res, 201, {"token" : "El token es valido"});
+}
