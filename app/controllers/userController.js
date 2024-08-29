@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { basedatos } from "../config/mysql.db";
 import { error, success } from "../messages/browr";
-
+import jwt from "jsonwebtoken";
 
 export const listarUser = async(req, res) => {
     try {
@@ -62,58 +62,45 @@ export const crearUsuario = async (req, res) => {
         error(req, res, 500, "Error interno del servidor al crear usuario");
     }
 };
-export const logueoUsuario = async(req, res) => {
+export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
-    console.log(usuario + contrasena);
+    console.log(`Usuario: ${usuario}, Contraseña: ${contrasena}`);
 
     try {
-        // Verificamos si el usuario existe
-        const rol = await basedatos.query(`CALL SP_VerificarUsuario(?)`, [usuario]);
-        const respuesta = await basedatos.query(`CALL SP_BuscarUsuario(?)`, [usuario]);
+        // Verificar si el usuario existe y obtener su rol y contraseña
+        const [request] = await basedatos.query('CALL SP_VERIFICAR_ROLES(?)', [usuario]);
 
-        // Si el usuario no existe, devolvemos un error
-        if (!respuesta || respuesta[0][0] == 0) {
-            error(req, res, 404, "Usuario no existe");
-            return;
+        if (request[0].length === 0) {
+            console.log('Usuario no encontrado');
+            return error(req, res, 404, 'Usuario no existe');
         }
 
-        // Obtenemos la contraseña hasheada del resultado
-        const password = respuesta[0][0].contrasena;
-        
-        // Verificamos si la contraseña está definida
-        if (!password) {
-            console.log();
-            error(req, res, 404, "Contraseña no encontrada");
-            return;
-        }
+        // Obtener la información del usuario devuelta por el procedimiento
+        const userData = request[0][0];
+        const { nombre_usuario, id_rol, contrasena_hash } = userData;
 
-        // Comparamos la contraseña proporcionada con la almacenada
-        const match = await bcrypt.compare(contrasena, password);
-        
-        // Si no coinciden, devolvemos un error
+        // Comparar la contraseña proporcionada con la almacenada
+        const match = await bcrypt.compare(contrasena, contrasena_hash);
+        console.log(`Contraseña coincide: ${match}`);
+
         if (!match) {
-            error(req, res, 401, "Contraseña Incorrecta");
-            return;
+            console.log('Contraseña incorrecta');
+            return error(req, res, 401, 'Contraseña Incorrecta');
         }
 
-        let payload = {
-            "usuario": respuesta[0][0].usuario,
-        }; 
-
-        let token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
-            expiresIn: process.env.TOKEN_EXPIRES_IN
+        // Crear JWT payload y token
+        const payload = {
+            usuario: nombre_usuario,
+            rol: id_rol
+        };
+        const token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
+            expiresIn: process.env.TOKEN_EXPIRES_IN,
         });
 
-        /*
-        if (rol[0][0]?.rol === "Administrador") {
-            success(req, res, 200, { token, "rol": "/" });
-        } else if (rol[0][0]?.rol === "Usuario") {
-            success(req, res, 200, { token, "rol": "/" });
-        }
-        */
-
+        // Responder con el token y el rol
+        success(req, res, 200, { token, rol: id_rol });
     } catch (e) {
-        error(req, res, 500, "Error en el servidor, por favor inténtalo de nuevo más tarde");
-        console.log(e);
+        console.error(e);
+        return error(req, res, 500, 'Error en el servidor, por favor inténtalo de nuevo más tarde');
     }
-}
+};
