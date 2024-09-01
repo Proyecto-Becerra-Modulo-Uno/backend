@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 export const listarUser = async(req, res) => {
     try {
-        const respuesta = await basedatos.query('CALL ObtenerPanelControlUsuarios();');
+        const respuesta = await basedatos.query('CALL SP_ObtenerPanelControlUsuarios();');
         success(req, res, 200, respuesta[0][0]);
     } catch (err) {
         error(req, res, 200, err || "Error interno del servidor")
@@ -77,7 +77,7 @@ export const logueoUsuario = async (req, res) => {
 
         // Obtener la información del usuario devuelta por el procedimiento
         const userData = request[0][0];
-        const { nombre_usuario, id_rol, contrasena_hash } = userData;
+        const { id_rol ,nombre_usuario, contrasena_hash, nombre, email } = userData;
 
         // Comparar la contraseña proporcionada con la almacenada
         const match = await bcrypt.compare(contrasena, contrasena_hash);
@@ -90,8 +90,10 @@ export const logueoUsuario = async (req, res) => {
 
         // Crear JWT payload y token
         const payload = {
+            rol: id_rol,
+            nombre: nombre,
+            correo: email,
             usuario: nombre_usuario,
-            rol: id_rol
         };
         const token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
             expiresIn: process.env.TOKEN_EXPIRES_IN,
