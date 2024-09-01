@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-08-2024 a las 18:11:28
+-- Tiempo de generación: 01-09-2024 a las 06:00:59
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,11 +20,14 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `adso`
 --
+CREATE DATABASE IF NOT EXISTS `adso` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `adso`;
 
 DELIMITER $$
 --
 -- Procedimientos
 --
+DROP PROCEDURE IF EXISTS `AsignarRolUsuario`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `AsignarRolUsuario` (IN `p_usuario_id` INT, IN `p_rol_id` INT)   BEGIN
     DECLARE usuario_existe INT;
     DECLARE rol_existe INT;
@@ -44,6 +47,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `AsignarRolUsuario` (IN `p_usuario_i
     END IF;
 END$$
 
+DROP PROCEDURE IF EXISTS `ObtenerPanelControlUsuarios`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `ObtenerPanelControlUsuarios` ()   BEGIN
     SELECT 
         u.id AS ID,
@@ -62,6 +66,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `ObtenerPanelControlUsuarios` ()   B
         u.id;
 END$$
 
+DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_ESTADO_USUARIO`$$
+CREATE DEFINER=`` PROCEDURE `SP_ACTUALIZAR_ESTADO_USUARIO` (IN `p_id` INT, IN `p_id_estado` INT)   BEGIN
+    UPDATE usuario 
+    SET id_estado = p_id_estado
+    WHERE id = p_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_BuscarUsuario`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_BuscarUsuario` (IN `_nombre_usuario` VARCHAR(255))   BEGIN
     -- Selecciona el usuario y la contraseña desde la tabla de usuarios
     SELECT nombre_usuario, contrasena_hash
@@ -70,6 +82,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_BuscarUsuario` (IN `_nombre_usua
     LIMIT 1;
 END$$
 
+DROP PROCEDURE IF EXISTS `SP_CrearUsuario`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CrearUsuario` (IN `_nombre_usuario` VARCHAR(255), IN `_nombre` VARCHAR(255), IN `_contrasena_hash` VARCHAR(255), IN `_email` VARCHAR(255))   BEGIN
 
 INSERT INTO usuario(nombre_usuario, nombre, contrasena_hash, email)
@@ -77,10 +90,47 @@ VALUES (_nombre_usuario, _nombre, _contrasena_hash, _email);
 
 END$$
 
+DROP PROCEDURE IF EXISTS `SP_DURACION_TOKEN`$$
+CREATE DEFINER=`` PROCEDURE `SP_DURACION_TOKEN` (IN `new_duracion_token` VARCHAR(255))   BEGIN
+    UPDATE politica_seguridad p
+    SET duracion_token = new_duracion_token
+    WHERE p.id = 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_INSERTAR_HISTORIAL_SESION_USUARIO`$$
+CREATE DEFINER=`` PROCEDURE `SP_INSERTAR_HISTORIAL_SESION_USUARIO` (IN `p_usuario_id` INT, IN `p_direccion_ip` VARCHAR(45), IN `p_dispositivo` VARCHAR(255))   BEGIN
+    INSERT INTO historial_sesion_usuario(
+        usuario_id, 
+        direccion_ip, 
+        dispositivo
+    ) 
+    VALUES (
+        p_usuario_id, 
+        p_direccion_ip, 
+        p_dispositivo
+    );
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_LISTAR_POLI`$$
+CREATE DEFINER=`` PROCEDURE `SP_LISTAR_POLI` ()   BEGIN
+SELECT * FROM `politica_seguridad` WHERE 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_LISTAR_REGISTROS`$$
+CREATE DEFINER=`` PROCEDURE `SP_LISTAR_REGISTROS` ()   BEGIN
+SELECT * FROM `historial_sesion_usuario`;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_VerificarUsuario`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_VerificarUsuario` (IN `_nombre_usuario` VARCHAR(255))   BEGIN
 
 SELECT nombre_usuario FROM usuario WHERE nombre_usuario = _nombre_usuario;
 
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_VERIFICAR_ROLES`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_VERIFICAR_ROLES` (IN `_nombre` VARCHAR(255))   BEGIN
+   SELECT u.id, u.nombre_usuario, u.id_rol, u.contrasena_hash FROM usuario u WHERE u.nombre_usuario = _nombre;
 END$$
 
 DELIMITER ;
@@ -91,6 +141,7 @@ DELIMITER ;
 -- Estructura de tabla para la tabla `administrador`
 --
 
+DROP TABLE IF EXISTS `administrador`;
 CREATE TABLE `administrador` (
   `id` int(11) NOT NULL,
   `id_estado` int(11) DEFAULT NULL,
@@ -114,6 +165,7 @@ INSERT INTO `administrador` (`id`, `id_estado`, `nombre_admin`, `nombre`, `contr
 -- Estructura de tabla para la tabla `estado`
 --
 
+DROP TABLE IF EXISTS `estado`;
 CREATE TABLE `estado` (
   `id` int(11) NOT NULL,
   `tipo_estado` varchar(255) NOT NULL
@@ -135,6 +187,7 @@ INSERT INTO `estado` (`id`, `tipo_estado`) VALUES
 -- Estructura de tabla para la tabla `grupos`
 --
 
+DROP TABLE IF EXISTS `grupos`;
 CREATE TABLE `grupos` (
   `id` int(11) NOT NULL,
   `nombre` varchar(255) NOT NULL,
@@ -157,6 +210,7 @@ INSERT INTO `grupos` (`id`, `nombre`, `descripcion`) VALUES
 -- Estructura de tabla para la tabla `historial_cambio_contrasena`
 --
 
+DROP TABLE IF EXISTS `historial_cambio_contrasena`;
 CREATE TABLE `historial_cambio_contrasena` (
   `id` int(11) NOT NULL,
   `id_usuario` int(11) DEFAULT NULL,
@@ -169,6 +223,7 @@ CREATE TABLE `historial_cambio_contrasena` (
 -- Estructura de tabla para la tabla `historial_sesion_usuario`
 --
 
+DROP TABLE IF EXISTS `historial_sesion_usuario`;
 CREATE TABLE `historial_sesion_usuario` (
   `id` int(11) NOT NULL,
   `usuario_id` int(11) DEFAULT NULL,
@@ -184,7 +239,13 @@ CREATE TABLE `historial_sesion_usuario` (
 INSERT INTO `historial_sesion_usuario` (`id`, `usuario_id`, `fecha_inicio_sesion`, `direccion_ip`, `dispositivo`) VALUES
 (1, 1, '2024-08-26 20:05:17', '192.168.1.100', 'Windows PC'),
 (2, 2, '2024-08-25 20:05:17', '192.168.1.101', 'iPhone'),
-(3, 3, '2024-08-24 20:05:17', '192.168.1.102', 'Android Phone');
+(3, 3, '2024-08-24 20:05:17', '192.168.1.102', 'Android Phone'),
+(4, 1, '2024-08-31 18:53:34', '1', 'd'),
+(5, 24, '2024-08-31 19:11:46', '::1', 'Windows NT 10.0; Win64; x64'),
+(6, 24, '2024-08-31 19:12:23', '::1', 'Windows NT 10.0; Win64; x64'),
+(7, 24, '2024-08-31 19:12:38', '::1', 'Windows NT 10.0; Win64; x64'),
+(8, 24, '2024-09-01 03:56:07', '::1', 'Windows NT 10.0; Win64; x64'),
+(9, 24, '2024-09-01 03:58:22', '::1', 'Windows NT 10.0; Win64; x64');
 
 -- --------------------------------------------------------
 
@@ -192,6 +253,7 @@ INSERT INTO `historial_sesion_usuario` (`id`, `usuario_id`, `fecha_inicio_sesion
 -- Estructura de tabla para la tabla `integrantes_grupo`
 --
 
+DROP TABLE IF EXISTS `integrantes_grupo`;
 CREATE TABLE `integrantes_grupo` (
   `id` int(11) NOT NULL,
   `id_grupo` int(11) DEFAULT NULL,
@@ -222,6 +284,7 @@ INSERT INTO `integrantes_grupo` (`id`, `id_grupo`, `id_usuario`) VALUES
 -- Estructura de tabla para la tabla `lista_blanca`
 --
 
+DROP TABLE IF EXISTS `lista_blanca`;
 CREATE TABLE `lista_blanca` (
   `id` int(11) NOT NULL,
   `id_usuario` int(11) DEFAULT NULL,
@@ -234,6 +297,7 @@ CREATE TABLE `lista_blanca` (
 -- Estructura de tabla para la tabla `lista_negra`
 --
 
+DROP TABLE IF EXISTS `lista_negra`;
 CREATE TABLE `lista_negra` (
   `id` int(11) NOT NULL,
   `id_usuario` int(11) DEFAULT NULL,
@@ -246,6 +310,7 @@ CREATE TABLE `lista_negra` (
 -- Estructura de tabla para la tabla `log_seguridad`
 --
 
+DROP TABLE IF EXISTS `log_seguridad`;
 CREATE TABLE `log_seguridad` (
   `id` int(11) NOT NULL,
   `usuario_id` int(11) DEFAULT NULL,
@@ -269,9 +334,11 @@ INSERT INTO `log_seguridad` (`id`, `usuario_id`, `timestamp`, `tipo_evento`, `de
 -- Estructura de tabla para la tabla `politica_seguridad`
 --
 
+DROP TABLE IF EXISTS `politica_seguridad`;
 CREATE TABLE `politica_seguridad` (
   `id` int(11) NOT NULL,
   `longitud_minima_contrasena` int(11) DEFAULT NULL,
+  `duracion_token` varchar(50) NOT NULL,
   `intentos_fallidos_permitidos` int(11) DEFAULT NULL,
   `tiempo_expiracion_sesion` int(11) DEFAULT NULL,
   `autenticacion_dos_factores_obligatoria` tinyint(1) DEFAULT NULL,
@@ -282,8 +349,8 @@ CREATE TABLE `politica_seguridad` (
 -- Volcado de datos para la tabla `politica_seguridad`
 --
 
-INSERT INTO `politica_seguridad` (`id`, `longitud_minima_contrasena`, `intentos_fallidos_permitidos`, `tiempo_expiracion_sesion`, `autenticacion_dos_factores_obligatoria`, `intervalos_cambio_contrasena`) VALUES
-(1, 8, 3, 3600, 1, '2024-08-27 20:05:17');
+INSERT INTO `politica_seguridad` (`id`, `longitud_minima_contrasena`, `duracion_token`, `intentos_fallidos_permitidos`, `tiempo_expiracion_sesion`, `autenticacion_dos_factores_obligatoria`, `intervalos_cambio_contrasena`) VALUES
+(1, 8, '1m', 3, 3600, 1, '2024-09-01 03:52:53');
 
 -- --------------------------------------------------------
 
@@ -291,6 +358,7 @@ INSERT INTO `politica_seguridad` (`id`, `longitud_minima_contrasena`, `intentos_
 -- Estructura de tabla para la tabla `pregunta_seguridad`
 --
 
+DROP TABLE IF EXISTS `pregunta_seguridad`;
 CREATE TABLE `pregunta_seguridad` (
   `id` int(11) NOT NULL,
   `pregunta` varchar(255) NOT NULL
@@ -313,6 +381,7 @@ INSERT INTO `pregunta_seguridad` (`id`, `pregunta`) VALUES
 -- Estructura de tabla para la tabla `respuesta`
 --
 
+DROP TABLE IF EXISTS `respuesta`;
 CREATE TABLE `respuesta` (
   `id` int(11) NOT NULL,
   `id_pregunta` int(11) DEFAULT NULL,
@@ -337,6 +406,7 @@ INSERT INTO `respuesta` (`id`, `id_pregunta`, `id_usuario`, `respuesta`) VALUES
 -- Estructura de tabla para la tabla `rol`
 --
 
+DROP TABLE IF EXISTS `rol`;
 CREATE TABLE `rol` (
   `id` int(11) NOT NULL,
   `nombre` varchar(255) NOT NULL,
@@ -359,6 +429,7 @@ INSERT INTO `rol` (`id`, `nombre`, `descripcion`) VALUES
 -- Estructura de tabla para la tabla `terminos_condiciones`
 --
 
+DROP TABLE IF EXISTS `terminos_condiciones`;
 CREATE TABLE `terminos_condiciones` (
   `descripcion` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -369,6 +440,7 @@ CREATE TABLE `terminos_condiciones` (
 -- Estructura de tabla para la tabla `usuario`
 --
 
+DROP TABLE IF EXISTS `usuario`;
 CREATE TABLE `usuario` (
   `id` int(11) NOT NULL,
   `id_rol` int(11) DEFAULT 2,
@@ -385,9 +457,9 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `id_rol`, `id_estado`, `nombre_usuario`, `nombre`, `contrasena_hash`, `email`, `fecha_creacion`) VALUES
-(1, 2, 1, 'juanperez', 'Juan Pérez', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'juan@example.com', '2024-08-27 20:05:17'),
+(1, 4, 3, 'juanperez', 'Juan Pérez', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'juan@example.com', '2024-08-27 20:05:17'),
 (2, 4, 1, 'mariagomez', 'María Gómez', 'fbb4a8a163ffa958b4f02bf9cabb30cfefb40de803f2c4c346a9d39b3be1b544', 'maria@example.com', '2024-08-27 20:05:17'),
-(3, 3, 1, 'carlosrodriguez', 'Carlos Rodríguez', '12654c024a4c0926329753cf79d4bb95d617c17684066809cf453b2084a4d5bc', 'carlos@example.com', '2024-08-27 20:05:17'),
+(3, 1, 1, 'carlosrodriguez', 'Carlos Rodríguez', '12654c024a4c0926329753cf79d4bb95d617c17684066809cf453b2084a4d5bc', 'carlos@example.com', '2024-08-27 20:05:17'),
 (4, 2, 1, 'analopez', 'Ana López', '0877e464d4849257536022d6e42562fa6f5d2001aea605e68e9bd0b51886d22c', 'ana@example.com', '2024-08-27 20:05:17'),
 (5, 2, 1, 'pedromartinez', 'Pedro Martínez', 'c0540cad18814f4300c6769b5cc09d8c98b4be70148bd29ab33d0183f9ad57a8', 'pedro@example.com', '2024-08-27 20:05:17'),
 (6, 2, 1, 'luisafernandez', 'Luisa Fernández', 'f29e3db205274c7c31edd411f788082022de84f44082786ee76379f98cd9ae95', 'luisa@example.com', '2024-08-27 20:05:17'),
@@ -542,7 +614,7 @@ ALTER TABLE `historial_cambio_contrasena`
 -- AUTO_INCREMENT de la tabla `historial_sesion_usuario`
 --
 ALTER TABLE `historial_sesion_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `integrantes_grupo`
