@@ -68,7 +68,7 @@ export const logueoUsuario = async (req, res) => {
 
     try {
         // Verificar si el usuario existe y obtener su rol y contraseña
-        const [request] = await basedatos.query('CALL SP_Verificar_Roles(?)', [usuario]);
+        const [request] = await basedatos.query('CALL SP_VerificarRoles(?)', [usuario]);
 
         if (request[0].length === 0) {
             console.log('Usuario no encontrado');
@@ -106,3 +106,8 @@ export const logueoUsuario = async (req, res) => {
         return error(req, res, 500, 'Error en el servidor, por favor inténtalo de nuevo más tarde');
     }
 };
+
+
+export const validarToken = (req, res) =>{
+    success(req, res, 201, {"token" : "El token es valido"});
+}
