@@ -60,17 +60,6 @@ export const crearUsuario = async (req, res) => {
     }
 };
 
-export const duracionToken = (req, res) => {
-    const {duracion} = req.body;
-    try {
-        const request = basedatos.query("CALL SP_DURACION_TOKEN(?)", [duracion])
-        success(req, res, 201, "Duracion ActualIzada")
-    } catch (err) {
-        console.error(err);
-        error(req, res, 500, "Error en la actualización de la duracion del token")
-    }
-}
-
 export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
     try {
@@ -84,7 +73,6 @@ export const logueoUsuario = async (req, res) => {
         const userData = request[0][0];
         const { id, id_rol, nombre_usuario, contrasena_hash, nombre, email } = userData;
 
-        // Verificar contraseña
         const match = await bcrypt.compare(contrasena, contrasena_hash);
         console.log(`Contraseña coincide: ${match}`);
 
@@ -93,9 +81,7 @@ export const logueoUsuario = async (req, res) => {
             return error(req, res, 401, 'Contraseña Incorrecta');
         }
 
-        // Obtener duración del token desde la base de datos
         const [duracionResult] = await basedatos.query('CALL SP_LISTAR_POLI()');
-        console.log(duracionResult);
         
         const duracionToken = duracionResult[0][0]?.duracion_token || '1h';
 
@@ -106,12 +92,10 @@ export const logueoUsuario = async (req, res) => {
             usuario: nombre_usuario,
         };
 
-        // Firmar el token con la duración obtenida
         const token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
             expiresIn: duracionToken,
         });
         
-        // Obtener información del usuario
         const userAgentString = req.headers['user-agent'];
         const osMatch = userAgentString.match(/\(([^)]+)\)/);
         const os = osMatch ? osMatch[1] : 'Unknown OS';
@@ -157,5 +141,25 @@ export const listarSesiones = async (req, res)=> {
     } catch (err) {
         console.error(err);
         return error(req, res, 500, "No se pudo traer la lista de sesiones")
+    }
+}
+
+export const listarPoliticasSeguridad = async(req, res) => {
+    try {
+        const request = await basedatos.query("CALL SP_LISTAR_POLI()")
+        success(req, res, 200, request[0][0])
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error al listar políticas")
+    }
+}
+export const actualizarPoliticasSeguridad = (req, res) => {
+    const {longitud, duracion, frecuencia} = req.body;
+    try {
+        const request = basedatos.query("CALL SP_ACTUALIZAR_POLITICA(?, ?, ?)", [longitud, duracion, frecuencia])
+        success(req, res, 201, "Politicas ActualIzadas")
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error en la actualización de la duracion del token")
     }
 }

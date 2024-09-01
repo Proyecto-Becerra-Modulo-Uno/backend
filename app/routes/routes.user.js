@@ -1,5 +1,5 @@
 import Router from "express";
-import { asignarRolUsuario, bloquearUsuario, crearUsuario, duracionToken, listarSesiones, listarUser, logueoUsuario, registroInicioSesión } from "../controllers/userController.js";
+import { actualizarPoliticasSeguridad, asignarRolUsuario, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión } from "../controllers/userController.js";
 
 const userRout = Router();
 
@@ -10,5 +10,6 @@ userRout.post('/asignar-rol', asignarRolUsuario);
 userRout.post('/login', logueoUsuario)
 userRout.post("/historial-sesion", registroInicioSesión)
 userRout.put("/estado/:id", bloquearUsuario)
-userRout.put("/duracion", duracionToken)
+userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad)
+userRout.get("/listar-politicas", listarPoliticasSeguridad)
 export default userRout;

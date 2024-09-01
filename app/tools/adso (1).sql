@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-09-2024 a las 06:00:59
+-- Tiempo de generación: 01-09-2024 a las 22:10:07
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -71,6 +71,15 @@ CREATE DEFINER=`` PROCEDURE `SP_ACTUALIZAR_ESTADO_USUARIO` (IN `p_id` INT, IN `p
     UPDATE usuario 
     SET id_estado = p_id_estado
     WHERE id = p_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_POLITICA`$$
+CREATE DEFINER=`` PROCEDURE `SP_ACTUALIZAR_POLITICA` (IN `p_longitud_minima_contrasena` INT, IN `p_duracion_token` VARCHAR(50), IN `p_frecuencia_copia_seguridad` VARCHAR(50))   BEGIN
+    UPDATE politica_seguridad
+    SET longitud_minima_contrasena = p_longitud_minima_contrasena,
+        duracion_token = p_duracion_token,
+        frecuencia_copia_seguridad = p_frecuencia_copia_seguridad
+    WHERE id = 1; -- Puedes cambiar este ID según sea necesario
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_BuscarUsuario`$$
@@ -342,15 +351,16 @@ CREATE TABLE `politica_seguridad` (
   `intentos_fallidos_permitidos` int(11) DEFAULT NULL,
   `tiempo_expiracion_sesion` int(11) DEFAULT NULL,
   `autenticacion_dos_factores_obligatoria` tinyint(1) DEFAULT NULL,
-  `intervalos_cambio_contrasena` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `intervalos_cambio_contrasena` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `frecuencia_copia_seguridad` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `politica_seguridad`
 --
 
-INSERT INTO `politica_seguridad` (`id`, `longitud_minima_contrasena`, `duracion_token`, `intentos_fallidos_permitidos`, `tiempo_expiracion_sesion`, `autenticacion_dos_factores_obligatoria`, `intervalos_cambio_contrasena`) VALUES
-(1, 8, '1m', 3, 3600, 1, '2024-09-01 03:52:53');
+INSERT INTO `politica_seguridad` (`id`, `longitud_minima_contrasena`, `duracion_token`, `intentos_fallidos_permitidos`, `tiempo_expiracion_sesion`, `autenticacion_dos_factores_obligatoria`, `intervalos_cambio_contrasena`, `frecuencia_copia_seguridad`) VALUES
+(1, 12, '2h', 3, 3600, 1, '2024-09-01 20:09:31', 'Mensual');
 
 -- --------------------------------------------------------
 
