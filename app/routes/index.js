@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validatePassword } from "../controllers/controllers.js";
 import rutaAdmin from "./routes.admin";
-import userRout from "./userrout.js";
+import userRout from "./routes.user.js";
 
 const ruta = Router();
 
