@@ -1,7 +1,7 @@
 import { Router } from "express";
-import rutaAdmin from "./routes.admin";
 // import { actualizarLongitudContrasena } from "../controllers/configuracionController.js"; // Importa el controlador
 import userRout from "./routes.user.js";
+import rutaAdmin from "./routes.admin.js";
 
 const ruta = Router();
 
