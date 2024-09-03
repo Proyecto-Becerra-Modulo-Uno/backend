@@ -67,14 +67,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `ObtenerPanelControlUsuarios` ()   B
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_ESTADO_USUARIO`$$
-CREATE DEFINER=`` PROCEDURE `SP_ACTUALIZAR_ESTADO_USUARIO` (IN `p_id` INT, IN `p_id_estado` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ACTUALIZAR_ESTADO_USUARIO` (IN `p_id` INT, IN `p_id_estado` INT)   BEGIN
     UPDATE usuario 
     SET id_estado = p_id_estado
     WHERE id = p_id;
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_POLITICA`$$
-CREATE DEFINER=`` PROCEDURE `SP_ACTUALIZAR_POLITICA` (IN `p_longitud_minima_contrasena` INT, IN `p_duracion_token` VARCHAR(50), IN `p_frecuencia_copia_seguridad` VARCHAR(50))   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ACTUALIZAR_POLITICA` (IN `p_longitud_minima_contrasena` INT, IN `p_duracion_token` VARCHAR(50), IN `p_frecuencia_copia_seguridad` VARCHAR(50))   BEGIN
     UPDATE politica_seguridad
     SET longitud_minima_contrasena = p_longitud_minima_contrasena,
         duracion_token = p_duracion_token,
@@ -100,14 +100,14 @@ VALUES (_nombre_usuario, _nombre, _contrasena_hash, _email);
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_DURACION_TOKEN`$$
-CREATE DEFINER=`` PROCEDURE `SP_DURACION_TOKEN` (IN `new_duracion_token` VARCHAR(255))   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DURACION_TOKEN` (IN `new_duracion_token` VARCHAR(255))   BEGIN
     UPDATE politica_seguridad p
     SET duracion_token = new_duracion_token
     WHERE p.id = 1;
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_INSERTAR_HISTORIAL_SESION_USUARIO`$$
-CREATE DEFINER=`` PROCEDURE `SP_INSERTAR_HISTORIAL_SESION_USUARIO` (IN `p_usuario_id` INT, IN `p_direccion_ip` VARCHAR(45), IN `p_dispositivo` VARCHAR(255))   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INSERTAR_HISTORIAL_SESION_USUARIO` (IN `p_usuario_id` INT, IN `p_direccion_ip` VARCHAR(45), IN `p_dispositivo` VARCHAR(255))   BEGIN
     INSERT INTO historial_sesion_usuario(
         usuario_id, 
         direccion_ip, 
@@ -121,12 +121,12 @@ CREATE DEFINER=`` PROCEDURE `SP_INSERTAR_HISTORIAL_SESION_USUARIO` (IN `p_usuari
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_LISTAR_POLI`$$
-CREATE DEFINER=`` PROCEDURE `SP_LISTAR_POLI` ()   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_LISTAR_POLI` ()   BEGIN
 SELECT * FROM `politica_seguridad` WHERE 1;
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_LISTAR_REGISTROS`$$
-CREATE DEFINER=`` PROCEDURE `SP_LISTAR_REGISTROS` ()   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_LISTAR_REGISTROS` ()   BEGIN
 SELECT * FROM `historial_sesion_usuario`;
 END$$
 
