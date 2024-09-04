@@ -103,8 +103,9 @@ export const logueoUsuario = async (req, res) => {
         const osMatch = userAgentString.match(/\(([^)]+)\)/);
         const os = osMatch ? osMatch[1] : 'Unknown OS';
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-
-        success(req, res, 200, { token, rol: id_rol, platform: os, ip: ip, id: id });
+        console.log(token);
+        
+        success(req, res, 200, { token:token, rol: id_rol, platform: os, ip: ip, id: id });
 
     } catch (e) {
         console.error(e);

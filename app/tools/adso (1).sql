@@ -77,11 +77,72 @@ CREATE DEFINER=`proyectobecerra`@`%` PROCEDURE `SP_ObtenerPanelControlUsuarios` 
         u.id;
 END$$
 
-CREATE DEFINER=`proyectobecerra`@`%` PROCEDURE `SP_VerificarRoles` (IN `_nombre` VARCHAR(255))   BEGIN
-   SELECT u.id_rol, u.nombre_usuario, u.nombre, u.email, u.contrasena_hash FROM usuario u WHERE u.nombre_usuario = _nombre;
+DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_ESTADO_USUARIO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ACTUALIZAR_ESTADO_USUARIO` (IN `p_id` INT, IN `p_id_estado` INT)   BEGIN
+    UPDATE usuario 
+    SET id_estado = p_id_estado
+    WHERE id = p_id;
 END$$
 
-CREATE DEFINER=`proyectobecerra`@`%` PROCEDURE `SP_VerificarUsuario` (IN `_nombre_usuario` VARCHAR(255))   BEGIN
+DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_POLITICA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ACTUALIZAR_POLITICA` (IN `p_longitud_minima_contrasena` INT, IN `p_duracion_token` VARCHAR(50), IN `p_frecuencia_copia_seguridad` VARCHAR(50))   BEGIN
+    UPDATE politica_seguridad
+    SET longitud_minima_contrasena = p_longitud_minima_contrasena,
+        duracion_token = p_duracion_token,
+        frecuencia_copia_seguridad = p_frecuencia_copia_seguridad
+    WHERE id = 1; -- Puedes cambiar este ID según sea necesario
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_BuscarUsuario`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_BuscarUsuario` (IN `_nombre_usuario` VARCHAR(255))   BEGIN
+    -- Selecciona el usuario y la contraseña desde la tabla de usuarios
+    SELECT nombre_usuario, contrasena_hash
+    FROM usuario
+    WHERE nombre_usuario = _nombre_usuario
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_CrearUsuario`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CrearUsuario` (IN `_nombre_usuario` VARCHAR(255), IN `_nombre` VARCHAR(255), IN `_contrasena_hash` VARCHAR(255), IN `_email` VARCHAR(255))   BEGIN
+
+INSERT INTO usuario(nombre_usuario, nombre, contrasena_hash, email)
+VALUES (_nombre_usuario, _nombre, _contrasena_hash, _email);
+
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_DURACION_TOKEN`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DURACION_TOKEN` (IN `new_duracion_token` VARCHAR(255))   BEGIN
+    UPDATE politica_seguridad p
+    SET duracion_token = new_duracion_token
+    WHERE p.id = 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_INSERTAR_HISTORIAL_SESION_USUARIO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INSERTAR_HISTORIAL_SESION_USUARIO` (IN `p_usuario_id` INT, IN `p_direccion_ip` VARCHAR(45), IN `p_dispositivo` VARCHAR(255))   BEGIN
+    INSERT INTO historial_sesion_usuario(
+        usuario_id, 
+        direccion_ip, 
+        dispositivo
+    ) 
+    VALUES (
+        p_usuario_id, 
+        p_direccion_ip, 
+        p_dispositivo
+    );
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_LISTAR_POLI`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_LISTAR_POLI` ()   BEGIN
+SELECT * FROM `politica_seguridad` WHERE 1;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_LISTAR_REGISTROS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_LISTAR_REGISTROS` ()   BEGIN
+SELECT * FROM `historial_sesion_usuario`;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_VerificarUsuario`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_VerificarUsuario` (IN `_nombre_usuario` VARCHAR(255))   BEGIN
 
 SELECT nombre_usuario FROM usuario WHERE nombre_usuario = _nombre_usuario;
 
