@@ -14,4 +14,4 @@ export const verifyToken = async (req, res, next) =>{
     } catch (e) {
         error(req, res, 401, e)
     }
-}
+} 
