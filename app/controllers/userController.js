@@ -3,9 +3,10 @@ import { basedatos } from "../config/mysql.db";
 import { error, success } from "../messages/browr";
 import jwt from "jsonwebtoken";
 import userAgent from "user-agent";
+
 export const listarUser = async(req, res) => {
     try {
-        const respuesta = await basedatos.query('CALL ObtenerPanelControlUsuarios();');
+        const respuesta = await basedatos.query('CALL SP_ObtenerPanelControlUsuarios();');
         success(req, res, 200, respuesta[0][0]);
     } catch (err) {
         error(req, res, 200, err || "Error interno del servidor")
@@ -32,6 +33,7 @@ export const asignarRolUsuario = async (req, res) => {
         error(req, res, 500, err.message || "Error interno del servidor");
     }
 };
+
 export const crearUsuario = async (req, res) => {
     const { usuario, nombre, email, contrasena, contasena } = req.body;
 
@@ -63,7 +65,8 @@ export const crearUsuario = async (req, res) => {
 export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
     try {
-        const [request] = await basedatos.query('CALL SP_VERIFICAR_ROLES(?)', [usuario]);
+        // Verificar si el usuario existe y obtener su rol y contraseña
+        const [request] = await basedatos.query('CALL SP_VerificarRoles(?)', [usuario]);
         
         if (request[0].length === 0) {
             console.log('Usuario no encontrado');
@@ -110,6 +113,9 @@ export const logueoUsuario = async (req, res) => {
     }
 };
 
+export const validarToken = (req, res) =>{
+    success(req, res, 201, {"token" : "El token es valido"});
+}
 
 export const registroInicioSesión = async (req, res) => {
     const {id, ip, platform} = req.body;
@@ -121,7 +127,6 @@ export const registroInicioSesión = async (req, res) => {
         return error(req, res, 500, "Error en el servidor")
     }
 }
-
 
 export const bloquearUsuario = async(req, res) => {
     const {id} = req.params;
@@ -154,6 +159,7 @@ export const listarPoliticasSeguridad = async(req, res) => {
         error(req, res, 500, "Error al listar políticas")
     }
 }
+
 export const actualizarPoliticasSeguridad = (req, res) => {
     const {longitud, duracion, frecuencia} = req.body;
     try {
