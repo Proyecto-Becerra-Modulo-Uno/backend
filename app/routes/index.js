@@ -1,19 +1,22 @@
 import { Router } from "express";
-import { validatePassword } from "../controllers/controllers.js";
-import rutaAdmin from "./routes.admin";
-import userRout from "./userrout.js";
+// import { actualizarLongitudContrasena } from "../controllers/configuracionController.js"; // Importa el controlador
+import userRout from "./routes.user.js";
+import rutaAdmin from "./routes.admin.js";
+import authRoutes from "./auth.routes.js";
 
 const ruta = Router();
 
-// Ruta para validar la contraseña
-ruta.post('/validate-password', validatePassword);
 
-ruta.use('/users',userRout);
+ruta.use('/users', userRout);
 
-ruta.use("/", (req, res) =>{
-    res.json({message:'hola mundo'})
+ruta.use('/auth', authRoutes);
+
+ruta.use("/", (req, res) => {
+    res.json({ message: 'hola mundo' });
 });
 
 ruta.use("/", rutaAdmin);
+
+// ruta.put('/configuracion/longitud-contrasena', actualizarLongitudContrasena);
 
 export default ruta;
