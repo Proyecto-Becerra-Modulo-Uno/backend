@@ -106,3 +106,80 @@ export const logueoUsuario = async (req, res) => {
         return error(req, res, 500, 'Error en el servidor, por favor inténtalo de nuevo más tarde');
     }
 };
+export const contrasena = async (req, res) => {
+    try {
+        const respuesta = await basedatos.query('CALL ObtenerPanelControlUsuarios();');
+        if (respuesta[0].affectedRows == 1) {
+            let msg = `
+                <!DOCTYPE html>
+  <html lang="es">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+          body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              color: #333;
+              line-height: 1.6;
+              padding: 20px;
+          }
+          .container {
+              background-color: #fff;
+              border-radius: 10px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              padding: 20px;
+              max-width: 600px;
+              margin: auto;
+          }
+          h1 {
+              color: #808080;
+          }
+          p {
+              font-size: 2em;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <h1>¡Hola estimado usuario!</h1>
+          <p>¡Queremos informarte que tienes que cambiar tu contraseña en nuestra pagina APEX!</p>
+          <p>¡Te queremos informar que el cambio de contraseña es obligatorio!</p>
+          <p>¡Gracias por tu atención!</p>
+      </div>
+  </body>
+  </html>
+            `; 
+        } 
+    } catch (err) {
+        error(req, res, 400, err);
+    }
+};
+export const sendEmail = async (messages, receiverEmail, subject) => {
+    try {
+        let transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            service: "gmail",
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_CORREO,
+                pass: process.env.EMAIL_CLAVE
+            },
+            tls: {
+                rejectUnauthorized: false 
+            }
+        });
+
+        let info = await transporter.sendMail({
+            from: process.env.EMAIL_CORREO,
+            to: receiverEmail,
+            subject: subject,
+            html: messages
+        });
+
+        console.log("Email enviado:", info.messageId);
+    } catch (error) {
+        console.error("Error al enviar el correo:", error);
+        throw error;
+    }
+};
