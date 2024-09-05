@@ -1,10 +1,16 @@
-const express = require('express');
-const router = express.Router();
-const verificationMiddleware = require('../middlewares/verification.middleware');
+import { Router } from "express";
+import { updateVerificationStatus, sendVerificationCode, verifyCode } from "../controllers/authController.js";
 
-// Ruta para realizar la prueba de verificación
-router.post('/verify', verificationMiddleware, (req, res) => {
-    res.status(200).json({ message: 'Código de verificación enviado' });
-});
+const authRoutes = Router();
 
-module.exports = router;
+authRoutes.put("/update-status-twuilio", updateVerificationStatus);
+
+
+
+// Ruta para enviar el código de verificación
+authRoutes.post('/send-code', sendVerificationCode);
+
+// Ruta para verificar el código recibido
+authRoutes.post('/verify-code', verifyCode);
+
+export default authRoutes;

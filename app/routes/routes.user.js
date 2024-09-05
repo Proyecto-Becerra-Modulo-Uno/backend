@@ -6,7 +6,7 @@ const userRout = Router();
 userRout.get("/", listarUser);
 userRout.post("/", crearUsuario);
 userRout.get("/inicios", listarSesiones)
-userRout.post('/asignar-rol', asignarRolUsuario);
+// userRout.post('/asignar-rol', asignarRolUsuario);
 userRout.post('/login', logueoUsuario)
 userRout.post("/historial-sesion", registroInicioSesión)
 userRout.put("/estado/:id", bloquearUsuario)
