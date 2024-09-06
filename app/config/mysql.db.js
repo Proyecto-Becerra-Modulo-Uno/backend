@@ -9,4 +9,5 @@ export const basedatos = createPool({
     password: process.env.MYSQLPASSWORD,
     port: process.env.MYSQLPORT || 3306,
     database: process.env.MYSQLDATABASE,
+    uri: process.env.MYSQLURI,
 })

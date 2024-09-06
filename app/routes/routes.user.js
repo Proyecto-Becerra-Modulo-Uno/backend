@@ -13,4 +13,6 @@ userRout.put("/estado/:id", bloquearUsuario);
 userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad);
 userRout.get("/listar-politicas", listarPoliticasSeguridad);
 userRout.put("/actualizar-tiempo", actualizarTiempoIntentos);
+userRout.put("/estado/:id", bloquearUsuario)
+
 export default userRout;
