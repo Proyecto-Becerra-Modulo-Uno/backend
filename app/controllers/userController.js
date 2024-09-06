@@ -102,9 +102,7 @@ export const logueoUsuario = async (req, res) => {
         const userAgentString = req.headers['user-agent'];
         const osMatch = userAgentString.match(/\(([^)]+)\)/);
         const os = osMatch ? osMatch[1] : 'Unknown OS';
-        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-        console.log(token);
-        
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;        
         success(req, res, 200, { token:token, rol: id_rol, platform: os, ip: ip, id: id });
 
     } catch (e) {
@@ -112,6 +110,8 @@ export const logueoUsuario = async (req, res) => {
         return error(req, res, 500, 'Error en el servidor, por favor inténtalo de nuevo más tarde');
     }
 };
+
+
 
 export const validarToken = (req, res) =>{
     success(req, res, 201, {"token" : "El token es valido"});
@@ -168,5 +168,15 @@ export const actualizarPoliticasSeguridad = (req, res) => {
     } catch (err) {
         console.error(err);
         error(req, res, 500, "Error en la actualización de la duracion del token")
+    }
+}
+export const actualizarTiempoIntentos = (req, res) => {
+    const {tiempo, intentos} = req.body;
+    try {
+        const request = basedatos.query("CALL SP_ACTUALIZAR_TIEMPO_INTENTOS(?, ?)", [intentos, tiempo]);
+        success(req, res, 201, "Intentos y tiempo actualizados")
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error actualizando el tiempo y los intentos");
     }
 }
