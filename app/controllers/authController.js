@@ -59,9 +59,7 @@ export const verifyCode = async (req, res) => {
     const { userId, phoneNumber, code } = req.body;
 
     try {
-        if (!/^\+\d{10,15}$/.test(phoneNumber)) {
-            return res.status(400).json({ message: "Invalid phone number format. Use E.164 format." });
-        }
+
 
         const [rows] = await basedatos.query(
             "SELECT estado_v FROM verificacion_doble WHERE id_admin = ?",
