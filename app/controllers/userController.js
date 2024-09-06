@@ -13,26 +13,26 @@ export const listarUser = async(req, res) => {
     }
 }
 
-export const asignarRolUsuario = async (req, res) => {
-    const { usuarioId, rolId } = req.body;
+// export const asignarRolUsuario = async (req, res) => {
+//     const { usuarioId, rolId } = req.body;
 
-    if (!usuarioId || !rolId) {
-        return error(req, res, 400, "Se requieren usuarioId y rolId");
-    }
+//     if (!usuarioId || !rolId) {
+//         return error(req, res, 400, "Se requieren usuarioId y rolId");
+//     }
 
-    try {
-        const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
-        const mensaje = resultado[0][0].mensaje;
+//     try {
+//         const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
+//         const mensaje = resultado[0][0].mensaje;
 
-        if (mensaje === 'Rol asignado correctamente') {
-            success(req, res, 200, { mensaje });
-        } else {
-            error(req, res, 400, { mensaje });
-        }
-    } catch (err) {
-        error(req, res, 500, err.message || "Error interno del servidor");
-    }
-};
+//         if (mensaje === 'Rol asignado correctamente') {
+//             success(req, res, 200, { mensaje });
+//         } else {
+//             error(req, res, 400, { mensaje });
+//         }
+//     } catch (err) {
+//         error(req, res, 500, err.message || "Error interno del servidor");
+//     }
+// };
 
 export const crearUsuario = async (req, res) => {
     const { usuario, nombre, email, contrasena, contasena } = req.body;
@@ -40,7 +40,7 @@ export const crearUsuario = async (req, res) => {
     const passwordToUse = contrasena || contasena;
 
     if (!usuario || !nombre || !email || !passwordToUse) {
-      return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña");
+        return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña");
     }
 
     try {
