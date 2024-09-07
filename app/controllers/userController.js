@@ -152,15 +152,15 @@ export const listarSesiones = async (req, res)=> {
 
 export const listarPoliticasSeguridad = async(req, res) => {
     try {
-        const request = await basedatos.query("CALL SP_LISTAR_POLI()")
-        success(req, res, 200, request[0][0])
+        const request = await basedatos.query("CALL SP_LISTAR_POLI()");
+        success(req, res, 200, request[0][0]);
     } catch (err) {
         console.error(err);
-        error(req, res, 500, "Error al listar políticas")
+        error(req, res, 500, "Error al listar políticas");
     }
 }
 
-export const actualizarPoliticasSeguridad = (req, res) => {
+export const actualizarPoliticasSeguridad = (req, res) =>   {
     const {longitud, duracion, frecuencia} = req.body;
     try {
         const request = basedatos.query("CALL SP_ACTUALIZAR_POLITICA(?, ?, ?)", [longitud, duracion, frecuencia])
