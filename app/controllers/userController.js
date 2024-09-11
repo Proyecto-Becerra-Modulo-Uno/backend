@@ -35,20 +35,20 @@ export const listarUser = async(req, res) => {
 // };
 
 export const crearUsuario = async (req, res) => {
-    const { usuario, nombre, email, contrasena, contasena } = req.body;
+    const { usuario, nombre, email, contrasena, contasena, rol, estado } = req.body;
 
     const passwordToUse = contrasena || contasena;
 
     if (!usuario || !nombre || !email || !passwordToUse) {
-        return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña");
+        return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña, rol");
     }
 
     try {
         const hash = await bcrypt.hash(passwordToUse, 10);
 
         const [respuesta] = await basedatos.query(
-            'CALL SP_CrearUsuario(?, ?, ?, ?);',
-            [usuario, nombre, hash, email]
+            'CALL SP_CrearUsuario(?, ?, ?, ?, ?, ?);',
+            [usuario, nombre, hash, email, rol, estado]
         );
 
         if (respuesta.affectedRows === 1) {
@@ -66,7 +66,7 @@ export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
     try {
         // Verificar si el usuario existe y obtener su rol y contraseña
-        const [request] = await basedatos.query('CALL SP_VerificarRoles(?)', [usuario]);
+        const [request] = await basedatos.query('CALL SP_VERIFICAR_ROLES(?)', [usuario]);
         
         if (request[0].length === 0) {
             console.log('Usuario no encontrado');
@@ -207,5 +207,15 @@ export const addParticipantes = async (req, res) => {
     } catch (err) {
         console.error(err);
         error(req, res, 500, "Error añadiendo integrante");
+    }
+}
+
+export const listar_grupos = async(req, res) => {
+    try {
+        const request = await basedatos.query("CALL SP_LISTAR_GRUPOS");
+        success(req, res, 201, request[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error listando grupos");
     }
 }

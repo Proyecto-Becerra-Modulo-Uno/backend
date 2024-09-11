@@ -11,10 +11,6 @@ ruta.use('/users', userRout);
 
 ruta.use('/auth', authRoutes);
 
-ruta.use("/", (req, res) => {
-    res.json({ message: 'hola mundo' });
-});
-
 ruta.use("/", rutaAdmin);
 
 // ruta.put('/configuracion/longitud-contrasena', actualizarLongitudContrasena);
