@@ -13,39 +13,32 @@ export const listarUser = async(req, res) => {
     }
 }
 
-// export const asignarRolUsuario = async (req, res) => {
-//     const { usuarioId, rolId } = req.body;
-
-//     if (!usuarioId || !rolId) {
-//         return error(req, res, 400, "Se requieren usuarioId y rolId");
-//     }
-
-//     try {
-//         const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
-//         const mensaje = resultado[0][0].mensaje;
-
-//         if (mensaje === 'Rol asignado correctamente') {
-//             success(req, res, 200, { mensaje });
-//         } else {
-//             error(req, res, 400, { mensaje });
-//         }
-//     } catch (err) {
-//         error(req, res, 500, err.message || "Error interno del servidor");
-//     }
-// };
+export const asignarRolUsuario = async (req, res) => {
+    const { usuarioId, rolId } = req.body;
+    if (!usuarioId || !rolId) {
+        return error(req, res, 400, "Se requieren usuarioId y rolId");
+    }
+    try {
+        const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
+        const mensaje = resultado[0][0].mensaje;
+        if (mensaje === 'Rol asignado correctamente') {
+            success(req, res, 200, { mensaje });
+        } else {
+            error(req, res, 400, { mensaje });
+        }
+    } catch (err) {
+        error(req, res, 500, err.message || "Error interno del servidor");
+    }
+};
 
 export const crearUsuario = async (req, res) => {
     const { usuario, nombre, email, contrasena, contasena, rol, estado } = req.body;
-
     const passwordToUse = contrasena || contasena;
-
     if (!usuario || !nombre || !email || !passwordToUse) {
         return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña, rol");
     }
-
     try {
         const hash = await bcrypt.hash(passwordToUse, 10);
-
         const [respuesta] = await basedatos.query(
             'CALL SP_CrearUsuario(?, ?, ?, ?, ?, ?);',
             [usuario, nombre, hash, email, rol, estado]
@@ -161,9 +154,9 @@ export const listarPoliticasSeguridad = async(req, res) => {
 }
 
 export const actualizarPoliticasSeguridad = (req, res) =>   {
-    const {longitud, duracion, frecuencia} = req.body;
+    const {longitud, duracion, frecuencia, intervalo} = req.body;
     try {
-        const request = basedatos.query("CALL SP_ACTUALIZAR_POLITICA(?, ?, ?)", [longitud, duracion, frecuencia])
+        const request = basedatos.query("CALL SP_ACTUALIZAR_POLITICA(?, ?, ?, ?)", [longitud, duracion, frecuencia, intervalo])
         success(req, res, 201, "Politicas ActualIzadas")
     } catch (err) {
         console.error(err);
