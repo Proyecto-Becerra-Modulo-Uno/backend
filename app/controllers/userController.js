@@ -219,3 +219,14 @@ export const listar_grupos = async(req, res) => {
         error(req, res, 500, "Error listando grupos");
     }
 }
+
+export const crear_intervalo_contrasena = async(req, res) => {
+    const {tiempo} = req.body;
+    try {
+        const request = await basedatos.query("CALL SP_ACTUALIZAR_INTERVALO_CAMBIO_CONTRASENA(?)", [tiempo]);
+        success(req, res, 201, "Intervalo actualizado");
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error listando grupos");
+    }
+}
