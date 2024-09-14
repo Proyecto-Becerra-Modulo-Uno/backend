@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
-import { error } from "../message/browser.js"; 
+import { error } from "../messages/browser.js"; 
 config();
 
 export const verifyToken = async (req, res, next) =>{

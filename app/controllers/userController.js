@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { basedatos } from "../config/mysql.db";
-import { error, success } from "../messages/browr";
+import { error, success } from "../messages/browser";
 
 
 export const listarUser = async(req, res) => {

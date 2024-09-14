@@ -5,11 +5,11 @@ import userRout from "./userrout.js";
 const ruta = Router();
 
 ruta.use('/users',userRout);
-
+ruta.use("/", rutaAdmin);
 ruta.use("/", (req, res) =>{
     res.json({message:'hola mundo'})
 });
 
-ruta.use("/", rutaAdmin);
+
 
 export default ruta
