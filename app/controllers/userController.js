@@ -62,3 +62,21 @@ export const crearUsuario = async (req, res) => {
         error(req, res, 500, "Error interno del servidor al crear usuario");
     }
 };
+
+export const changeUserStatus = async(req, res) => {
+    const { userId } = req.params;
+    const { newStatus } = req.body;
+    try {
+        // Llamar al procedimiento almacenado
+        const [results] = await basedatos.execute('CALL cambiar_estado_usuario(?, ?)', [userId, newStatus]);
+        // Verificar el resultado del procedimiento almacenado
+        if (results[0][0].success) {
+            success(req, res, 201, "Estado del usuario actualizado correctamente");
+        } else {
+            success(req, res, 400, "No se pudo actualizar el estado del usuario");
+        }
+    } catch (error) {
+        console.error('Error al cambiar el estado del usuario:', error);
+        error(req, res, 500, "Error interno del servidor");
+    }
+}
