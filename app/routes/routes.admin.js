@@ -4,7 +4,7 @@ import { crear_intervalo_contrasena, listar_grupos, logueoUsuario, validarToken 
 
 const rutaAdmin = Router();
 
-rutaAdmin.get("/oauth", verifyToken, validarToken)
+rutaAdmin.post("/oauth", verifyToken, validarToken)
 rutaAdmin.post("/login", logueoUsuario)
 rutaAdmin.get("/listar-grupos", listar_grupos)
 rutaAdmin.put("/actualizar-intervalo", crear_intervalo_contrasena)
