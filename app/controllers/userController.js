@@ -66,7 +66,7 @@ export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
     try {
         // Verificar si el usuario existe y obtener su rol y contraseña
-        const [request] = await basedatos.query('CALL SP_VerificarRoles(?)', [usuario]);
+        const [request] = await basedatos.query('CALL SP_VERIFICAR_ROLES(?)', [usuario]);
         
         if (request[0].length === 0) {
             console.log('Usuario no encontrado');
