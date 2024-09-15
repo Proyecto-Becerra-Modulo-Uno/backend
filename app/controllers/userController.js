@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { basedatos } from "../config/mysql.db.js";
 import { error, success } from "../messages/browr.js";
 import jwt from "jsonwebtoken";
+import jsPDF from 'jspdf';
 import userAgent from "user-agent";
 
 export const listarUser = async(req, res) => {
@@ -64,8 +65,12 @@ export const crearUsuario = async (req, res) => {
 
 export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
+    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgentString = req.headers['user-agent'];
+    const osMatch = userAgentString.match(/\(([^)]+)\)/);
+    const platform = osMatch ? osMatch[1] : 'Unknown OS';
+
     try {
-        // Verificar si el usuario existe y obtener su rol y contraseña
         const [request] = await basedatos.query('CALL SP_VerificarRoles(?)', [usuario]);
         
         if (request[0].length === 0) {
@@ -81,11 +86,25 @@ export const logueoUsuario = async (req, res) => {
 
         if (!match) {
             console.log('Contraseña incorrecta');
+            
+            await basedatos.query('INSERT INTO intentos_fallidos (id_usuario, ip_address, platform) VALUES (?, ?, ?)',
+                [id, ipAddress, platform]);
+            
+            const [failedAttempts] = await basedatos.query('SELECT COUNT(*) AS count FROM intentos_fallidos WHERE id_usuario = ? AND fecha > NOW() - INTERVAL 30 MINUTE', [id]);
+            
+            if (failedAttempts[0].count >= 2) {
+                await basedatos.query('INSERT INTO actividades_sospechosas (id_usuario, tipo_actividad) VALUES (?, ?)',
+                    [id, 'Intentos fallidos de inicio de sesión']);
+                
+                await basedatos.query('DELETE FROM intentos_fallidos WHERE id_usuario = ?', [id]);
+            }
+            
             return error(req, res, 401, 'Contraseña Incorrecta');
         }
 
+        await basedatos.query('DELETE FROM intentos_fallidos WHERE id_usuario = ?', [id]);
+
         const [duracionResult] = await basedatos.query('CALL SP_LISTAR_POLI()');
-        
         const duracionToken = duracionResult[0][0]?.duracion_token || '1h';
 
         const payload = {
@@ -94,27 +113,61 @@ export const logueoUsuario = async (req, res) => {
             correo: email,
             usuario: nombre_usuario,
         };
-
         const token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
             expiresIn: duracionToken,
         });
         
-        const userAgentString = req.headers['user-agent'];
-        const osMatch = userAgentString.match(/\(([^)]+)\)/);
-        const os = osMatch ? osMatch[1] : 'Unknown OS';
-        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;        
-        success(req, res, 200, { token:token, rol: id_rol, platform: os, ip: ip, id: id });
-
+        success(req, res, 200, { token: token, rol: id_rol, platform: platform, ip: ipAddress, id: id });
     } catch (e) {
-        console.error(e);
+        console.error('Error en logueoUsuario:', e);
         return error(req, res, 500, 'Error en el servidor, por favor inténtalo de nuevo más tarde');
     }
 };
 
 
-
 export const validarToken = (req, res) =>{
     success(req, res, 201, {"token" : "El token es valido"});
+}
+
+export const obtenerRegistrosInicioSesion = async (req, res) => {
+    try {
+        const [registros] = await basedatos.query("CALL SP_OBTENER_REGISTROS_INICIO_SESION()");
+        success(req, res, 200, registros[0]);
+    } catch (e) {
+        console.error(e);
+        return error(req, res, 500, "Error al obtener los registros de inicio de sesión");
+    }
+}
+
+export const generarPDFRegistrosInicioSesion = async (req, res) => {
+    try {
+        const [registros] = await basedatos.query("CALL SP_OBTENER_REGISTROS_INICIO_SESION()");
+        
+        const doc = new jsPDF();
+        doc.setFontSize(12); 
+        doc.text("Registros de Inicio de Sesión", 20, 10);
+
+        let yPos = 20;
+        registros[0].forEach((registro, index) => {
+            const texto = `${index + 1}. Usuario ID: ${registro.usuario_id}, IP: ${registro.direccion_ip}, Dispositivo: ${registro.dispositivo}, Fecha: ${registro.fecha_inicio_sesion}`;
+            const textoDividido = doc.splitTextToSize(texto, 170); 
+
+            doc.text(textoDividido, 20, yPos);
+            yPos += (textoDividido.length * 10); 
+
+            if (yPos > 280) { 
+                doc.addPage();
+                yPos = 20;
+            }
+        });
+
+        const pdfBuffer = doc.output('arraybuffer');
+        res.contentType('application/pdf');
+        res.send(Buffer.from(pdfBuffer));
+    } catch (e) {
+        console.error(e);
+        return error(req, res, 500, "Error al generar el PDF de registros de inicio de sesión");
+    }
 }
 
 export const registroInicioSesión = async (req, res) => {
@@ -260,3 +313,19 @@ export const actualizarTiempoIntentos = (req, res) => {
         error(req, res, 500, "Error actualizando el tiempo y los intentos");
     }
 }
+
+export const obtenerActividadesSospechosas = async (req, res) => {
+    try {
+        const [result] = await basedatos.query('SELECT * FROM actividades_sospechosas');
+        if (result.length === 0) {
+            return res.json([]); // Devuelve un array vacío si no hay datos
+        }
+        // res.json(result); 
+        success(req, res, 200, result);
+    } catch (error) {
+        console.error('Error al obtener actividades sospechosas:', error);
+        res.status(500).json({ message: 'Error al obtener actividades sospechosas' });
+    }
+};
+
+
