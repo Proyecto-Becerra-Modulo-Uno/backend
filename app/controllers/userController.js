@@ -184,6 +184,7 @@ export const actualizarPoliticasSeguridad = (req, res) =>   {
         error(req, res, 500, "Error en la actualización de la duracion del token")
     }
 }
+
 export const actualizarTiempoIntentos = (req, res) => {
     const {tiempo, intentos} = req.body;
     try {

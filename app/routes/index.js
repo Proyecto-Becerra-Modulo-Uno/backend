@@ -9,7 +9,6 @@ const ruta = Router();
 
 ruta.use("/", rutaAdmin);
 ruta.use('/users', userRout);
-
 ruta.use('/auth', authRoutes);
 
 
