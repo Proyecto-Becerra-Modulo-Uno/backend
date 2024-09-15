@@ -7,6 +7,7 @@ const rutaAdmin = Router();
 rutaAdmin.get("/", ()=>{})
 
 rutaAdmin.get("/oauth", verifyToken, validarToken)
+
 rutaAdmin.post("/login", logueoUsuario)
 
 export default rutaAdmin;
