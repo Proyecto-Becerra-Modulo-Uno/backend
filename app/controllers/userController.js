@@ -65,9 +65,9 @@ export const crearUsuario = async (req, res) => {
 export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
     try {
-        // Verificar si el usuario existe y obtener su rol y contraseña
+        // Verificar si el usuario existe
         const [request] = await basedatos.query('CALL SP_VERIFICAR_ROLES(?)', [usuario]);
-        
+
         if (request[0].length === 0) {
             console.log('Usuario no encontrado');
             return error(req, res, 404, 'Usuario no existe');
@@ -76,6 +76,7 @@ export const logueoUsuario = async (req, res) => {
         const userData = request[0][0];
         const { id, id_rol, nombre_usuario, contrasena_hash, nombre, email } = userData;
 
+        // Verifica que la contraseña coincida
         const match = await bcrypt.compare(contrasena, contrasena_hash);
         console.log(`Contraseña coincide: ${match}`);
 
@@ -84,9 +85,10 @@ export const logueoUsuario = async (req, res) => {
             return error(req, res, 401, 'Contraseña Incorrecta');
         }
 
-        const [duracionResult] = await basedatos.query('CALL SP_LISTAR_POLI()');
         
-        const duracionToken = duracionResult[0][0]?.duracion_token || '1h';
+        const [duracionResult] = await basedatos.query('CALL SP_LISTAR_POLI()');
+        const duracionToken = duracionResult[0][0]?.duracion_token || '20m';
+
 
         const payload = {
             rol: id_rol,
@@ -95,15 +97,19 @@ export const logueoUsuario = async (req, res) => {
             usuario: nombre_usuario,
         };
 
+        // Token con la clave secreta
         const token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
             expiresIn: duracionToken,
         });
+
         
         const userAgentString = req.headers['user-agent'];
         const osMatch = userAgentString.match(/\(([^)]+)\)/);
         const os = osMatch ? osMatch[1] : 'Unknown OS';
-        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;        
-        success(req, res, 200, { token:token, rol: id_rol, platform: os, ip: ip, id: id });
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+
+        
+        success(req, res, 200, { token, rol: id_rol, platform: os, ip, id });
 
     } catch (e) {
         console.error(e);
