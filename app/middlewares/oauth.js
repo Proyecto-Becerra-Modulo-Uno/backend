@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
-import { error } from "../messages/browr.js"; 
+import { error } from "../messages/browr.js";
+import session from 'express-session'; 
 config();
 
 export const verifyToken = async (req, res, next) =>{
@@ -15,4 +16,15 @@ export const verifyToken = async (req, res, next) =>{
         error(req, res, 401, e)
     }
 }
+// Tiempo de Expiracion
+const sessionConfig = session({
+    secret: process.env.SESSION_SECRET, 
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 3600000 // 1 hora
+    }
+});
+
+export default sessionConfig;
 
