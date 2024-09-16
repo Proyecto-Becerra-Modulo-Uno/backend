@@ -5,6 +5,38 @@ import jwt from "jsonwebtoken";
 import jsPDF from 'jspdf';
 import userAgent from "user-agent";
 
+export const addIpToList = async (req, res) => {
+    const { id, ipAddress, listType } = req.body;
+
+    if (!ipAddress || !listType) {
+        return error(req, res, 400, "Se requieren dirección IP y tipo de lista");
+    }
+
+    let tableName;
+    if (listType === 'white') {
+        tableName = 'lista_blanca';
+    } else if (listType === 'black') {
+        tableName = 'lista_negra';
+    } else {
+        return error(req, res, 400, "Tipo de lista inválido");
+    }
+
+    try {
+        const [result] = await basedatos.query(
+            `INSERT INTO ${tableName} (id_usuario, direccion_ip) VALUES (?, ?)`,
+            [id, ipAddress]
+        );
+
+        if (result.affectedRows === 1) {
+            success(req, res, 201, "IP agregada exitosamente a la lista");
+        } else {
+            error(req, res, 400, "No se pudo agregar la IP a la lista");
+        }
+    } catch (err) {
+        console.error("Error al agregar IP a la lista:", err);
+        error(req, res, 500, "Error interno del servidor al agregar IP a la lista");
+    }
+};
 export const listarUser = async(req, res) => {
     try {
         const respuesta = await basedatos.query('CALL SP_ObtenerPanelControlUsuarios();');
