@@ -76,6 +76,11 @@ export const crearUsuario = async (req, res) => {
         return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña");
     }
 
+    const passwordPolicyError = validarPoliticasDeContrasena(usuario, passwordToUse);
+    if (passwordPolicyError) {
+        return error(req, res, 400, passwordPolicyError);
+    }
+
     try {
         const hash = await bcrypt.hash(passwordToUse, 10);
 
@@ -89,10 +94,37 @@ export const crearUsuario = async (req, res) => {
         } else {
             error(req, res, 400, "No se pudo agregar el nuevo usuario");
         }
-        } catch (err) {
+    } catch (err) {
         console.error("Error al crear usuario:", err);
         error(req, res, 500, "Error interno del servidor al crear usuario");
     }
+};
+
+const validarPoliticasDeContrasena = (usuario, contrasena) => {
+    if (contrasena.length < 8) {
+        return "La contraseña debe tener al menos 8 caracteres.";
+    }
+
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}:"<>?|[\];',./`~\-\\=]).+$/;
+    if (!regex.test(contrasena)) {
+        return "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.";
+    }
+
+    const contrasenasComunes = ['123456', 'password', 'admin', 'qwerty'];
+    if (contrasenasComunes.includes(contrasena.toLowerCase())) {
+        return "La contraseña es demasiado común.";
+    }
+
+    if (contrasena.toLowerCase() === usuario.toLowerCase()) {
+        return "La contraseña no puede ser igual al nombre de usuario.";
+    }
+
+    if (contrasena.toLowerCase().includes('password')) {
+        return "La contraseña no puede contener la palabra 'password'.";
+    }
+
+
+    return null; 
 };
 
 export const logueoUsuario = async (req, res) => {
