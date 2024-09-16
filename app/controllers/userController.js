@@ -177,10 +177,22 @@ export const listarPoliticasSeguridad = async(req, res) => {
     }
 }
 
+export const listarPoliticasYTerminos = async(req, res) => {
+    try {
+        const request = await basedatos.query("CALL SP_LISTAR_POLICITA_Y_TERMINOS()");
+        success(req, res, 200, request[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error al listar politica y terminos");
+    }
+}
+
 export const actualizarPoliticasSeguridad = (req, res) =>   {
-    const {longitud, duracion, frecuencia, intervalo} = req.body;
+    const {longitud, duracion, frecuencia, intervalo, cant_min_minusculas, cant_min_mayusculas, cant_min_numeros, cant_min_caracteres_esp} = req.body;
     try {
         const request = basedatos.query("CALL SP_ACTUALIZAR_POLITICA(?, ?, ?, ?)", [longitud, duracion, frecuencia, intervalo])
+        const requestt = basedatos.query("CALL SP_ACTUALIZAR_TERMINOS_CONTRASENA(?, ?, ?, ?, ?)", [longitud, cant_min_minusculas, cant_min_mayusculas, cant_min_numeros, cant_min_caracteres_esp])
+
         success(req, res, 201, "Politicas ActualIzadas")
     } catch (err) {
         console.error(err);
@@ -188,16 +200,6 @@ export const actualizarPoliticasSeguridad = (req, res) =>   {
     }
 }
 
-// export const actualizarTerminosContra = (req, res) =>   {
-//     const {cant_caracteres, cant_min_minusculas, cant_min_mayusculas, cant_min_numeros, cant_min_caracteres_esp	} = req.body;
-//     try {
-//         const request = basedatos.query("CALL SP_ACTUALIZAR_POLITICA(?, ?, ?, ?)", [cant_caracteres, cant_min_minusculas, cant_min_mayusculas, cant_min_numeros, cant_min_caracteres_esp])
-//         success(req, res, 201, "Politicas ActualIzadas")
-//     } catch (err) {
-//         console.error(err);
-//         error(req, res, 500, "Error en la actualización de la duracion del token")
-//     }
-// }
 
 export const contrasena = async (req, res) => {
     try {
