@@ -1,5 +1,5 @@
 import { basedatos } from "../config/mysql.db";
-import { success, error } from "../messages/browr";
+import { success, error } from "../messages/browser.js";
 
 export const actualizarLongitudContrasena = async (req, res) => {
     const { longitud_minima_contrasena } = req.body;

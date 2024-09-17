@@ -1,6 +1,6 @@
 // controllers/authController.js
 import { basedatos } from "../config/mysql.db.js";
-import { error, success } from "../messages/browr.js";
+import { error, success } from "../messages/browser.js";
 import { sendVerificationCode as sendTwilioCode, verifyCode as verifyTwilioCode } from "../services/twilio.service.js";
 
 export const updateVerificationStatus = async (req, res) => {

@@ -1,8 +1,10 @@
 import bcrypt from "bcrypt";
 import { basedatos } from "../config/mysql.db";
-import { error, success } from "../messages/browr";
 import jwt from "jsonwebtoken";
 // import userAgent from "user-agent";
+import { error, success } from "../messages/browser.js";
+
+
 
 export const listarUser = async(req, res) => {
     try {
@@ -13,26 +15,26 @@ export const listarUser = async(req, res) => {
     }
 }
 
-// export const asignarRolUsuario = async (req, res) => {
-//     const { usuarioId, rolId } = req.body;
+export const asignarRolUsuario = async (req, res) => {
+    const { usuarioId, rolId } = req.body;
 
-//     if (!usuarioId || !rolId) {
-//         return error(req, res, 400, "Se requieren usuarioId y rolId");
-//     }
+    if (!usuarioId || !rolId) {
+        return error(req, res, 400, "Se requieren usuarioId y rolId");
+    }
 
-//     try {
-//         const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
-//         const mensaje = resultado[0][0].mensaje;
+    try {
+        const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
+        const mensaje = resultado[0][0].mensaje;
 
-//         if (mensaje === 'Rol asignado correctamente') {
-//             success(req, res, 200, { mensaje });
-//         } else {
-//             error(req, res, 400, { mensaje });
-//         }
-//     } catch (err) {
-//         error(req, res, 500, err.message || "Error interno del servidor");
-//     }
-// };
+        if (mensaje === 'Rol asignado correctamente') {
+            success(req, res, 200, { mensaje });
+        } else {
+            error(req, res, 400, { mensaje });
+        }
+    } catch (err) {
+        error(req, res, 500, err.message || "Error interno del servidor");
+    }
+};
 
 export const crearUsuario = async (req, res) => {
     const { usuario, nombre, email, contrasena, contasena } = req.body;
@@ -273,6 +275,24 @@ export const actualizarTiempoIntentos = (req, res) => {
     } catch (err) {
         console.error(err);
         error(req, res, 500, "Error actualizando el tiempo y los intentos");
+    }
+}
+
+export const changeUserStatus = async(req, res) => {
+    const { userId } = req.params;
+    const { newStatus } = req.body;
+    try {
+        // Llamar al procedimiento almacenado
+        const [results] = await basedatos.execute('CALL cambiar_estado_usuario(?, ?)', [userId, newStatus]);
+        // Verificar el resultado del procedimiento almacenado
+        if (results[0][0].success) {
+            success(req, res, 201, "Estado del usuario actualizado correctamente");
+        } else {
+            success(req, res, 400, "No se pudo actualizar el estado del usuario");
+        }
+    } catch (error) {
+        console.error('Error al cambiar el estado del usuario:', error);
+        error(req, res, 500, "Error interno del servidor");
     }
 }
 
