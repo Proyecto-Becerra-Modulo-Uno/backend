@@ -196,7 +196,28 @@ export const actualizarPoliticasSeguridad = (req, res) =>   {
         success(req, res, 201, "Politicas ActualIzadas")
     } catch (err) {
         console.error(err);
-        error(req, res, 500, "Error en la actualización de la duracion del token")
+        error(req, res, 500, "Error en la actualización")
+    }
+}
+
+export const listarComplejidadPreguntas = async(req, res) =>   {
+    try {
+        const request = await basedatos.query("CALL SP_LISTAR_COMPLEJIDAD_PREGUNTAS()");
+        success(req, res, 200, request[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error en la actualización")
+    }
+}
+
+export const actualizarComplejidadPreguntas = (req, res) =>   {
+    const {caracteres_pregunta, caracteres_respuesta, cant_preguntas} = req.body;
+    try {
+        const request = basedatos.query("CALL SP_ACTUALIZAR_COMPLEJIDAD_PREGUNTAS(?, ?, ?)", [caracteres_pregunta, caracteres_respuesta, cant_preguntas])
+        success(req, res, 201, "Complejidad de preguntas actualizadas")
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error en la actualización")
     }
 }
 
