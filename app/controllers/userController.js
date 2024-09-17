@@ -13,26 +13,26 @@ export const listarUser = async(req, res) => {
     }
 }
 
-export const asignarRolUsuario = async (req, res) => {
-    const { usuarioId, rolId } = req.body;
+// export const asignarRolUsuario = async (req, res) => {
+//     const { usuarioId, rolId } = req.body;
 
-    if (!usuarioId || !rolId) {
-        return error(req, res, 400, "Se requieren usuarioId y rolId");
-    }
+//     if (!usuarioId || !rolId) {
+//         return error(req, res, 400, "Se requieren usuarioId y rolId");
+//     }
 
-    try {
-        const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
-        const mensaje = resultado[0][0].mensaje;
+//     try {
+//         const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
+//         const mensaje = resultado[0][0].mensaje;
 
-        if (mensaje === 'Rol asignado correctamente') {
-            success(req, res, 200, { mensaje });
-        } else {
-            error(req, res, 400, { mensaje });
-        }
-    } catch (err) {
-        error(req, res, 500, err.message || "Error interno del servidor");
-    }
-};
+//         if (mensaje === 'Rol asignado correctamente') {
+//             success(req, res, 200, { mensaje });
+//         } else {
+//             error(req, res, 400, { mensaje });
+//         }
+//     } catch (err) {
+//         error(req, res, 500, err.message || "Error interno del servidor");
+//     }
+// };
 
 export const crearUsuario = async (req, res) => {
     const { usuario, nombre, email, contrasena, contasena } = req.body;
@@ -40,7 +40,7 @@ export const crearUsuario = async (req, res) => {
     const passwordToUse = contrasena || contasena;
 
     if (!usuario || !nombre || !email || !passwordToUse) {
-      return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña");
+        return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña");
     }
 
     try {
@@ -65,9 +65,9 @@ export const crearUsuario = async (req, res) => {
 export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
     try {
-        // Verificar si el usuario existe y obtener su rol y contraseña
-        const [request] = await basedatos.query('CALL SP_VerificarRoles(?)', [usuario]);
-        
+        // Verificar si el usuario existe
+        const [request] = await basedatos.query('CALL SP_VERIFICAR_ROLES(?)', [usuario]);
+
         if (request[0].length === 0) {
             // console.log('Usuario no encontrado');
             return error(req, res, 404, 'Usuario no existe');
@@ -76,6 +76,7 @@ export const logueoUsuario = async (req, res) => {
         const userData = request[0][0];
         const { id, id_rol, nombre_usuario, contrasena_hash, nombre, email } = userData;
 
+        // Verifica que la contraseña coincida
         const match = await bcrypt.compare(contrasena, contrasena_hash);
         console.log(`Contraseña coincide: ${match}`);
 
@@ -84,9 +85,10 @@ export const logueoUsuario = async (req, res) => {
             return error(req, res, 401, 'Contraseña Incorrecta');
         }
 
-        const [duracionResult] = await basedatos.query('CALL SP_LISTAR_POLI()');
         
-        const duracionToken = duracionResult[0][0]?.duracion_token || '1h';
+        const [duracionResult] = await basedatos.query('CALL SP_LISTAR_POLI()');
+        const duracionToken = duracionResult[0][0]?.duracion_token || '20m';
+
 
         const payload = {
             rol: id_rol,
@@ -95,23 +97,27 @@ export const logueoUsuario = async (req, res) => {
             usuario: nombre_usuario,
         };
 
+        // Token con la clave secreta
         const token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
             expiresIn: duracionToken,   
         });
+
         
         const userAgentString = req.headers['user-agent'];
         const osMatch = userAgentString.match(/\(([^)]+)\)/);
         const os = osMatch ? osMatch[1] : 'Unknown OS';
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-        console.log(token);
+
         
-        success(req, res, 200, { token:token, rol: id_rol, platform: os, ip: ip, id: id });
+        success(req, res, 200, { token, rol: id_rol, platform: os, ip, id });
 
     } catch (e) {
         console.error(e);
         return error(req, res, 500, 'Error en el servidor, por favor inténtalo de nuevo más tarde');
     }
 };
+
+
 
 export const validarToken = (req, res) =>{
     success(req, res, 201, {"token" : "El token es valido"});
@@ -171,6 +177,7 @@ export const actualizarPoliticasSeguridad = (req, res) => {
     }
 }
 
+
 export const actualizarPoliticasRetencion = (req, res) => {
     const { dias_inactividad } = req.body;
 
@@ -178,3 +185,94 @@ export const actualizarPoliticasRetencion = (req, res) => {
  
     res.send('Política de retención actualizada correctamente');
 };
+
+export const contrasena = async (req, res) => {
+    try {
+        const respuesta = await basedatos.query('CALL ObtenerPanelControlUsuarios();');
+        if (respuesta[0].affectedRows == 1) {
+            let msg = `
+                <!DOCTYPE html>
+  <html lang="es">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+          body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              color: #333;
+              line-height: 1.6;
+              padding: 20px;
+          }
+          .container {
+              background-color: #fff;
+              border-radius: 10px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              padding: 20px;
+              max-width: 600px;
+              margin: auto;
+          }
+          h1 {
+              color: #808080;
+          }
+          p {
+              font-size: 2em;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <h1>¡Hola estimado usuario!</h1>
+          <p>¡Queremos informarte que tienes que cambiar tu contraseña en nuestra pagina APEX!</p>
+          <p>¡Te queremos informar que el cambio de contraseña es obligatorio!</p>
+          <p>¡Gracias por tu atención!</p>
+      </div>
+  </body>
+  </html>
+            `; 
+        } 
+    } catch (err) {
+        error(req, res, 400, err);
+    }
+};
+
+export const sendEmail = async (messages, receiverEmail, subject) => {
+    try {
+        let transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            service: "gmail",
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_CORREO,
+                pass: process.env.EMAIL_CLAVE
+            },
+            tls: {
+                rejectUnauthorized: false 
+            }
+        });
+
+        let info = await transporter.sendMail({
+            from: process.env.EMAIL_CORREO,
+            to: receiverEmail,
+            subject: subject,
+            html: messages
+        });
+
+        console.log("Email enviado:", info.messageId);
+    } catch (error) {
+        console.error("Error al enviar el correo:", error);
+        throw error;
+    }
+};
+
+export const actualizarTiempoIntentos = (req, res) => {
+    const {tiempo, intentos} = req.body;
+    try {
+        const request = basedatos.query("CALL SP_ACTUALIZAR_TIEMPO_INTENTOS(?, ?)", [intentos, tiempo]);
+        success(req, res, 201, "Intentos y tiempo actualizados")
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error actualizando el tiempo y los intentos");
+    }
+}
+
