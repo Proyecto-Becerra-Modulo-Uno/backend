@@ -69,7 +69,7 @@ export const logueoUsuario = async (req, res) => {
         const [request] = await basedatos.query('CALL SP_VerificarRoles(?)', [usuario]);
         
         if (request[0].length === 0) {
-            console.log('Usuario no encontrado');
+            // console.log('Usuario no encontrado');
             return error(req, res, 404, 'Usuario no existe');
         }
 
