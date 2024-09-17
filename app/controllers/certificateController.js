@@ -5,7 +5,7 @@ import { exec } from "child_process";
 export const getAllCertificates = async(req, res) => {
   const certificates = await basedatos.query('SELECT * FROM certificates');
   //res.render('certificates', { certificates });
-  success(req, res, 200, certificates[0]);
+  success(req, res, 200, 'certificaciones',certificates[0]);
 }
 
 // Función para generar un CSR usando OpenSSL
@@ -30,7 +30,7 @@ export const renewCertificate = async (req, res) => {
     const [cert] = await basedatos.query('SELECT * FROM certificates WHERE id = ?', [certId]);
     if (!cert) {
         //return res.status(404).send('Certificado no encontrado');
-        return success(req, res, 404, 'Certificado no encontrado');
+        return success(req, res, 404, 'Certificado no encontrado',cert);
     }
 
     try {

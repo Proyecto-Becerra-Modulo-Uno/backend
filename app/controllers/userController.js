@@ -6,7 +6,7 @@ import { error, success } from "../messages/browser";
 export const listarUser = async(req, res) => {
     try {
         const respuesta = await basedatos.query('CALL ObtenerPanelControlUsuarios();');
-        success(req, res, 200, respuesta[0][0]);
+        success(req, res, 200, 'listar usuarios',respuesta[0][0]);
     } catch (err) {
         error(req, res, 200, err || "Error interno del servidor")
     }
@@ -24,7 +24,7 @@ export const asignarRolUsuario = async (req, res) => {
         const mensaje = resultado[0][0].mensaje;
 
         if (mensaje === 'Rol asignado correctamente') {
-            success(req, res, 200, { mensaje });
+            success(req, res, 200, { mensaje }, resultado);
         } else {
             error(req, res, 400, { mensaje });
         }
@@ -53,7 +53,7 @@ export const crearUsuario = async (req, res) => {
         );
 
         if (respuesta.affectedRows === 1) {
-            success(req, res, 201, "Usuario creado exitosamente");
+            success(req, res, 201, "Usuario creado exitosamente",respuesta);
         } else {
             error(req, res, 400, "No se pudo agregar el nuevo usuario");
         }
@@ -71,7 +71,7 @@ export const changeUserStatus = async(req, res) => {
         const [results] = await basedatos.execute('CALL cambiar_estado_usuario(?, ?)', [userId, newStatus]);
         // Verificar el resultado del procedimiento almacenado
         if (results[0][0].success) {
-            success(req, res, 201, "Estado del usuario actualizado correctamente");
+            success(req, res, 201, "Estado del usuario actualizado correctamente",results);
         } else {
             success(req, res, 400, "No se pudo actualizar el estado del usuario");
         }

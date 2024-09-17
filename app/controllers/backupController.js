@@ -38,7 +38,7 @@ export const restoreDatabase = async (req, res) => {
       }
 
       console.log('Resultado de la restauración:', stdout);
-      success(req, res, 200, 'Datos restaurados correctamente');
+      success(req, res, 200, 'Datos restaurados correctamente', stdout);
     });
   } catch (err) {
     console.error('Error inesperado:', err);
@@ -140,24 +140,24 @@ export const exportDatabase = async (req, res) => {
 
             // Exportar la estructura y los datos de cada tabla
             for (const tableRow of tables) {
-                const tableName = Object.values(tableRow)[0]; // Obtiene el nombre de la tabla
+              const tableName = Object.values(tableRow)[0]; // Obtiene el nombre de la tabla
 
-                // Obtener la estructura de la tabla
-                const [[{ 'Create Table': createTableSQL }]] = await connection.query(`SHOW CREATE TABLE ${tableName}`);
-                sqlDump += `-- Estructura de la tabla ${tableName} \n`;
-                sqlDump += `${createTableSQL};\n\n`;
+              // Obtener la estructura de la tabla
+              const [[{ 'Create Table': createTableSQL }]] = await connection.query(`SHOW CREATE TABLE ${tableName}`);
+              sqlDump += `-- Estructura de la tabla ${tableName} \n`;
+              sqlDump += `${createTableSQL};\n\n`;
 
-                // Exportar los datos de la tabla
-                const [rows] = await connection.query(`SELECT * FROM ${tableName}`);
-                if (rows.length > 0) {
-                    sqlDump += `-- Datos de la tabla ${tableName} \n`;
-                    rows.forEach(row => {
-                        const columns = Object.keys(row).map(col => `\`${col}\``).join(', ');
-                        const values = Object.values(row).map(val => connection.escape(val)).join(', ');
-                        sqlDump += `INSERT INTO \`${tableName}\` (${columns}) VALUES (${values});\n`;
-                    });
-                    sqlDump += `\n`;
-                }
+              // Exportar los datos de la tabla
+              const [rows] = await connection.query(`SELECT * FROM ${tableName}`);
+              if (rows.length > 0) {
+                  sqlDump += `-- Datos de la tabla ${tableName} \n`;
+                  rows.forEach(row => {
+                      const columns = Object.keys(row).map(col => `\`${col}\``).join(', ');
+                      const values = Object.values(row).map(val => connection.escape(val)).join(', ');
+                      sqlDump += `INSERT INTO \`${tableName}\` (${columns}) VALUES (${values});\n`;
+                  });
+                  sqlDump += `\n`;
+              }
             }
 
             // Verificar si hay datos para exportar
@@ -169,6 +169,7 @@ export const exportDatabase = async (req, res) => {
             res.setHeader('Content-Type', 'application/sql');
             res.setHeader('Content-Disposition', 'attachment; filename=database_export.sql');
             res.send(sqlDump);
+            success()
         } else {
             throw new Error('Formato de exportación no soportado');
         }
