@@ -9,11 +9,16 @@ const ruta = Router();
 
 ruta.use('/users', userRout);
 
+
 ruta.use('/auth', authRoutes);
 
 ruta.use("/", (req, res) => {
     res.json({ message: 'hola mundo' });
 });
+
+// ruta.use("/", (req, res) => {
+//     res.json({ message: 'hola mundo' });
+// });
 
 ruta.use("/", rutaAdmin);
 

@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { basedatos } from "../config/mysql.db";
 import { error, success } from "../messages/browr";
 import jwt from "jsonwebtoken";
-import userAgent from "user-agent";
+// import userAgent from "user-agent";
 
 export const listarUser = async(req, res) => {
     try {
@@ -69,7 +69,7 @@ export const logueoUsuario = async (req, res) => {
         const [request] = await basedatos.query('CALL SP_VERIFICAR_ROLES(?)', [usuario]);
 
         if (request[0].length === 0) {
-            console.log('Usuario no encontrado');
+            // console.log('Usuario no encontrado');
             return error(req, res, 404, 'Usuario no existe');
         }
 
@@ -99,7 +99,7 @@ export const logueoUsuario = async (req, res) => {
 
         // Token con la clave secreta
         const token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
-            expiresIn: duracionToken,
+            expiresIn: duracionToken,   
         });
 
         
@@ -266,3 +266,12 @@ export const actualizarTiempoIntentos = (req, res) => {
         error(req, res, 500, "Error actualizando el tiempo y los intentos");
     }
 }
+
+export const actualizarPoliticasRetencion = (req, res) => {
+    const { dias_inactividad } = req.body;
+
+    console.log(`Días de inactividad configurados: ${dias_inactividad}`);
+ 
+    res.send('Política de retención actualizada correctamente');
+};
+

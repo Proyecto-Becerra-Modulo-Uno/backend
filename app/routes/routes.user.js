@@ -1,5 +1,7 @@
 import Router from "express";
-import { actualizarPoliticasSeguridad, actualizarTiempoIntentos, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión } from "../controllers/userController.js";
+import { actualizarPoliticasSeguridad, actualizarTiempoIntentos, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión, actualizarPoliticasRetencion } from "../controllers/userController.js";
+
+
 
 const userRout = Router();
 
@@ -14,5 +16,8 @@ userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad);
 userRout.get("/listar-politicas", listarPoliticasSeguridad);
 userRout.put("/actualizar-tiempo", actualizarTiempoIntentos);
 userRout.put("/estado/:id", bloquearUsuario)
+userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad)
+userRout.get("/listar-politicas", listarPoliticasSeguridad)
+userRout.post("/datos", actualizarPoliticasRetencion);
 
 export default userRout;
