@@ -51,12 +51,15 @@ export const listarUser = async(req, res) => {
 
 export const asignarRolUsuario = async (req, res) => {
     const { usuarioId, rolId } = req.body;
+
     if (!usuarioId || !rolId) {
         return error(req, res, 400, "Se requieren usuarioId y rolId");
     }
+
     try {
         const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
         const mensaje = resultado[0][0].mensaje;
+
         if (mensaje === 'Rol asignado correctamente') {
             success(req, res, 200, { mensaje });
         } else {
@@ -314,14 +317,26 @@ export const listarPoliticasSeguridad = async(req, res) => {
     }
 }
 
+export const listarPoliticasYTerminos = async(req, res) => {
+    try {
+        const request = await basedatos.query("CALL SP_LISTAR_POLICITA_Y_TERMINOS()");
+        success(req, res, 200, request[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error al listar politica y terminos");
+    }
+}
+
 export const actualizarPoliticasSeguridad = (req, res) =>   {
-    const {longitud, duracion, frecuencia, intervalo} = req.body;
+    const {longitud, duracion, frecuencia, intervalo, cant_min_minusculas, cant_min_mayusculas, cant_min_numeros, cant_min_caracteres_esp} = req.body;
     try {
         const request = basedatos.query("CALL SP_ACTUALIZAR_POLITICA(?, ?, ?, ?)", [longitud, duracion, frecuencia, intervalo])
+        const requestt = basedatos.query("CALL SP_ACTUALIZAR_TERMINOS_CONTRASENA(?, ?, ?, ?, ?)", [longitud, cant_min_minusculas, cant_min_mayusculas, cant_min_numeros, cant_min_caracteres_esp])
+
         success(req, res, 201, "Politicas ActualIzadas")
     } catch (err) {
         console.error(err);
-        error(req, res, 500, "Error en la actualización de la duracion del token")
+        error(req, res, 500, "Error en la actualización")
     }
 }
 
@@ -333,6 +348,27 @@ export const actualizarPoliticasRetencion = (req, res) => {
  
     res.send('Política de retención actualizada correctamente');
 };
+
+export const listarComplejidadPreguntas = async(req, res) =>   {
+    try {
+        const request = await basedatos.query("CALL SP_LISTAR_COMPLEJIDAD_PREGUNTAS()");
+        success(req, res, 200, request[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error en la actualización")
+    }
+}
+
+export const actualizarComplejidadPreguntas = (req, res) =>   {
+    const {caracteres_pregunta, caracteres_respuesta, cant_preguntas} = req.body;
+    try {
+        const request = basedatos.query("CALL SP_ACTUALIZAR_COMPLEJIDAD_PREGUNTAS(?, ?, ?)", [caracteres_pregunta, caracteres_respuesta, cant_preguntas])
+        success(req, res, 201, "Complejidad de preguntas actualizadas")
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error en la actualización")
+    }
+}
 
 export const contrasena = async (req, res) => {
     try {
@@ -413,6 +449,7 @@ export const sendEmail = async (messages, receiverEmail, subject) => {
     }
 };
 
+
 export const actualizarTiempoIntentos = (req, res) => {
     const {tiempo, intentos} = req.body;
     try {
@@ -423,7 +460,6 @@ export const actualizarTiempoIntentos = (req, res) => {
         error(req, res, 500, "Error actualizando el tiempo y los intentos");
     }
 }
-
 
 export const changeUserStatus = async(req, res) => {
     const { userId } = req.params;
@@ -456,7 +492,6 @@ export const obtenerActividadesSospechosas = async (req, res) => {
         res.status(500).json({ message: 'Error al obtener actividades sospechosas' });
     }
 };
-
 
 export const crearGrupo = async(req, res) => {
     const {nombre, desc} = req.body;
@@ -508,4 +543,3 @@ export const crear_intervalo_contrasena = async(req, res) => {
         error(req, res, 500, "Error listando grupos");
     }
 }
-

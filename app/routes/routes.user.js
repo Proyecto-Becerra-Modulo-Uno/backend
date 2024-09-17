@@ -3,6 +3,8 @@ import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, bloquearUsu
 import { addIpToList, generarPDFRegistrosInicioSesion, obtenerActividadesSospechosas, obtenerRegistrosInicioSesion } from "../controllers/userController.js";
 import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } from "../controllers/userController.js";
 
+import { actualizarComplejidadPreguntas, listarComplejidadPreguntas, listarPoliticasYTerminos } from "../controllers/userController.js";
+
 
 const userRout = Router();
 
@@ -17,6 +19,9 @@ userRout.post('/login', logueoUsuario);
 userRout.post("/historial-sesion", registroInicioSesión);
 userRout.put("/estado/:id", bloquearUsuario);
 userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad);
+userRout.get("/listarPoliticasYTerminos", listarPoliticasYTerminos);
+userRout.put("/actualizarComplePreguntas", actualizarComplejidadPreguntas);
+userRout.get("/listarComplePreguntas", listarComplejidadPreguntas);
 userRout.get("/listar-politicas", listarPoliticasSeguridad);
 userRout.put("/actualizar-tiempo", actualizarTiempoIntentos);
 userRout.put("/estado/:id", bloquearUsuario)
