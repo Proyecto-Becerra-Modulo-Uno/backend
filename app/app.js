@@ -15,4 +15,5 @@ app.use(cors());
 
 app.use("/", ruta);
 
+
 export default app;
