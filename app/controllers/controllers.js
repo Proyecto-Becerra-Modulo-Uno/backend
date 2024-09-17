@@ -24,3 +24,10 @@ const actualizarLongitudContrasena = async (req, res) => {
 module.exports = {
     actualizarLongitudContrasena,
 };
+
+
+app.get('/api/security-data', (req, res) => {
+    const securityData = getSecurityData(); // Función para obtener datos de seguridad
+    res.json(securityData);
+});
+
