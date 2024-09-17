@@ -9,7 +9,7 @@ export const updateVerificationStatus = async (req, res) => {
 
         if (!adminId) {
             return error(req, res, 400, "Faltan parámetros requeridos.");
-        }
+        } 
 
         const estado = 1;
 

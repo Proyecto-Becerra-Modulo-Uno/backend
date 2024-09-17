@@ -170,3 +170,40 @@ export const actualizarPoliticasSeguridad = (req, res) => {
         error(req, res, 500, "Error en la actualización de la duracion del token")
     }
 }
+
+
+
+
+
+// ____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________-
+
+
+export const updatePhoneNumber = async (req, res) => {
+    try {
+        const userEmail = req.userEmail; // Obtener el correo del usuario del `req`
+
+        if (!userEmail) {
+            return error(req, res, 400, "No se pudo obtener el correo del usuario.");
+        }
+
+        const { phoneNumber } = req.body;
+
+        if (!phoneNumber) {
+            return error(req, res, 400, "Faltan parámetros requeridos: número de teléfono.");
+        }
+
+        const [result] = await basedatos.query(
+            "UPDATE usuarios SET telefono = ? WHERE correo = ?",
+            [phoneNumber, userEmail]
+        );
+
+        if (result.affectedRows > 0) {
+            return success(req, res, 200, "Número de teléfono actualizado correctamente.");
+        } else {
+            return error(req, res, 404, "Usuario no encontrado para actualizar.");
+        }
+    } catch (err) {
+        console.error("Error detallado:", err);
+        return error(req, res, 500, `Error en el servidor: ${err.message} - Código: ${err.code}`);
+    }
+};

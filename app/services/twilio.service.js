@@ -6,7 +6,7 @@ export async function sendVerificationCode(phoneNumber) {
         const verification = await client.verify.v2
             .services(serviceSid)
             .verifications
-            .create({ to: phoneNumber, channel: "call" });
+            .create({ to: phoneNumber, channel: "sms" });
         return verification.sid;
     } catch (error) {
         throw new Error(`el codigo no fue enviado: ${error.message}`);
