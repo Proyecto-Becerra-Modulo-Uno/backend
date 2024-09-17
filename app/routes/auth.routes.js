@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { updateVerificationStatus, sendVerificationCode, verifyCode } from "../controllers/authController.js";
+import { updateVerificationStatus, sendVerificationCode, verifyCode, obtenerLogSeguridad } from "../controllers/authController.js";
 
 const authRoutes = Router();
 
@@ -12,5 +12,6 @@ authRoutes.post('/send-code', sendVerificationCode);
 
 // Ruta para verificar el código recibido
 authRoutes.post('/verify-code', verifyCode);
+authRoutes.get('/log_seguridad', obtenerLogSeguridad)
 
 export default authRoutes;
