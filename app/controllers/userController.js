@@ -4,8 +4,42 @@ import jwt from "jsonwebtoken";
 // import userAgent from "user-agent";
 import { error, success } from "../messages/browser.js";
 
+import jsPDF from 'jspdf';
+// import userAgent from "user-agent";
 
 
+export const addIpToList = async (req, res) => {
+    const { id, ipAddress, listType } = req.body;
+
+    if (!ipAddress || !listType) {
+        return error(req, res, 400, "Se requieren dirección IP y tipo de lista");
+    }
+
+    let tableName;
+    if (listType === 'white') {
+        tableName = 'lista_blanca';
+    } else if (listType === 'black') {
+        tableName = 'lista_negra';
+    } else {
+        return error(req, res, 400, "Tipo de lista inválido");
+    }
+
+    try {
+        const [result] = await basedatos.query(
+            `INSERT INTO ${tableName} (id_usuario, direccion_ip) VALUES (?, ?)`,
+            [id, ipAddress]
+        );
+
+        if (result.affectedRows === 1) {
+            success(req, res, 201, "IP agregada exitosamente a la lista");
+        } else {
+            error(req, res, 400, "No se pudo agregar la IP a la lista");
+        }
+    } catch (err) {
+        console.error("Error al agregar IP a la lista:", err);
+        error(req, res, 500, "Error interno del servidor al agregar IP a la lista");
+    }
+};
 export const listarUser = async(req, res) => {
     try {
         const respuesta = await basedatos.query('CALL SP_ObtenerPanelControlUsuarios();');
@@ -45,6 +79,11 @@ export const crearUsuario = async (req, res) => {
         return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña");
     }
 
+    const passwordPolicyError = validarPoliticasDeContrasena(usuario, passwordToUse);
+    if (passwordPolicyError) {
+        return error(req, res, 400, passwordPolicyError);
+    }
+
     try {
         const hash = await bcrypt.hash(passwordToUse, 10);
 
@@ -58,17 +97,51 @@ export const crearUsuario = async (req, res) => {
         } else {
             error(req, res, 400, "No se pudo agregar el nuevo usuario");
         }
-        } catch (err) {
+    } catch (err) {
         console.error("Error al crear usuario:", err);
         error(req, res, 500, "Error interno del servidor al crear usuario");
     }
 };
 
+const validarPoliticasDeContrasena = (usuario, contrasena) => {
+    if (contrasena.length < 8) {
+        return "La contraseña debe tener al menos 8 caracteres.";
+    }
+
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}:"<>?|[\];',./`~\-\\=]).+$/;
+    if (!regex.test(contrasena)) {
+        return "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.";
+    }
+
+    const contrasenasComunes = ['123456', 'password', 'admin', 'qwerty'];
+    if (contrasenasComunes.includes(contrasena.toLowerCase())) {
+        return "La contraseña es demasiado común.";
+    }
+
+    if (contrasena.toLowerCase() === usuario.toLowerCase()) {
+        return "La contraseña no puede ser igual al nombre de usuario.";
+    }
+
+    if (contrasena.toLowerCase().includes('password')) {
+        return "La contraseña no puede contener la palabra 'password'.";
+    }
+
+
+    return null; 
+};
+
 export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
+    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgentString = req.headers['user-agent'];
+    const osMatch = userAgentString.match(/\(([^)]+)\)/);
+    const platform = osMatch ? osMatch[1] : 'Unknown OS';
+
     try {
+
         // Verificar si el usuario existe
         const [request] = await basedatos.query('CALL SP_VERIFICAR_ROLES(?)', [usuario]);
+        
 
         if (request[0].length === 0) {
             // console.log('Usuario no encontrado');
@@ -84,13 +157,28 @@ export const logueoUsuario = async (req, res) => {
 
         if (!match) {
             console.log('Contraseña incorrecta');
+            
+            await basedatos.query('INSERT INTO intentos_fallidos (id_usuario, ip_address, platform) VALUES (?, ?, ?)',
+                [id, ipAddress, platform]);
+            
+            const [failedAttempts] = await basedatos.query('SELECT COUNT(*) AS count FROM intentos_fallidos WHERE id_usuario = ? AND fecha > NOW() - INTERVAL 30 MINUTE', [id]);
+            
+            if (failedAttempts[0].count >= 2) {
+                await basedatos.query('INSERT INTO actividades_sospechosas (id_usuario, tipo_actividad) VALUES (?, ?)',
+                    [id, 'Intentos fallidos de inicio de sesión']);
+                
+                await basedatos.query('DELETE FROM intentos_fallidos WHERE id_usuario = ?', [id]);
+            }
+            
             return error(req, res, 401, 'Contraseña Incorrecta');
         }
+
 
         
         const [duracionResult] = await basedatos.query('CALL SP_LISTAR_POLI()');
         const duracionToken = duracionResult[0][0]?.duracion_token || '20m';
 
+        await basedatos.query('DELETE FROM intentos_fallidos WHERE id_usuario = ?', [id]);
 
         const payload = {
             rol: id_rol,
@@ -105,24 +193,66 @@ export const logueoUsuario = async (req, res) => {
         });
 
         
+
         const userAgentString = req.headers['user-agent'];
         const osMatch = userAgentString.match(/\(([^)]+)\)/);
         const os = osMatch ? osMatch[1] : 'Unknown OS';
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
 
-        
         success(req, res, 200, { token, rol: id_rol, platform: os, ip, id });
 
+        success(req, res, 200, { token: token, rol: id_rol, platform: platform, ip: ipAddress, id: id });
+
     } catch (e) {
-        console.error(e);
+        console.error('Error en logueoUsuario:', e);
         return error(req, res, 500, 'Error en el servidor, por favor inténtalo de nuevo más tarde');
     }
 };
 
 
-
 export const validarToken = (req, res) =>{
     success(req, res, 201, {"token" : "El token es valido"});
+}
+
+export const obtenerRegistrosInicioSesion = async (req, res) => {
+    try {
+        const [registros] = await basedatos.query("CALL SP_OBTENER_REGISTROS_INICIO_SESION()");
+        success(req, res, 200, registros[0]);
+    } catch (e) {
+        console.error(e);
+        return error(req, res, 500, "Error al obtener los registros de inicio de sesión");
+    }
+}
+
+export const generarPDFRegistrosInicioSesion = async (req, res) => {
+    try {
+        const [registros] = await basedatos.query("CALL SP_OBTENER_REGISTROS_INICIO_SESION()");
+        
+        const doc = new jsPDF();
+        doc.setFontSize(12); 
+        doc.text("Registros de Inicio de Sesión", 20, 10);
+
+        let yPos = 20;
+        registros[0].forEach((registro, index) => {
+            const texto = `${index + 1}. Usuario ID: ${registro.usuario_id}, IP: ${registro.direccion_ip}, Dispositivo: ${registro.dispositivo}, Fecha: ${registro.fecha_inicio_sesion}`;
+            const textoDividido = doc.splitTextToSize(texto, 170); 
+
+            doc.text(textoDividido, 20, yPos);
+            yPos += (textoDividido.length * 10); 
+
+            if (yPos > 280) { 
+                doc.addPage();
+                yPos = 20;
+            }
+        });
+
+        const pdfBuffer = doc.output('arraybuffer');
+        res.contentType('application/pdf');
+        res.send(Buffer.from(pdfBuffer));
+    } catch (e) {
+        console.error(e);
+        return error(req, res, 500, "Error al generar el PDF de registros de inicio de sesión");
+    }
 }
 
 export const registroInicioSesión = async (req, res) => {
@@ -278,6 +408,7 @@ export const actualizarTiempoIntentos = (req, res) => {
     }
 }
 
+
 export const changeUserStatus = async(req, res) => {
     const { userId } = req.params;
     const { newStatus } = req.body;
@@ -295,4 +426,19 @@ export const changeUserStatus = async(req, res) => {
         error(req, res, 500, "Error interno del servidor");
     }
 }
+
+export const obtenerActividadesSospechosas = async (req, res) => {
+    try {
+        const [result] = await basedatos.query('SELECT * FROM actividades_sospechosas');
+        if (result.length === 0) {
+            return res.json([]); // Devuelve un array vacío si no hay datos
+        }
+        // res.json(result); 
+        success(req, res, 200, result);
+    } catch (error) {
+        console.error('Error al obtener actividades sospechosas:', error);
+        res.status(500).json({ message: 'Error al obtener actividades sospechosas' });
+    }
+};
+
 

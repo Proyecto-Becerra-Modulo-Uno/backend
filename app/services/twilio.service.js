@@ -1,5 +1,5 @@
 // services/twilio.service.js
-import { client, serviceSid } from "../config/twilio.pool";
+import { client, serviceSid } from "../config/twilio.pool.js";
 
 export async function sendVerificationCode(phoneNumber) {
     try {
