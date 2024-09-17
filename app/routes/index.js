@@ -5,6 +5,9 @@ import authRoutes from "./auth.routes.js";
 
 const ruta = Router();
 
+
+ruta.use("/", rutaAdmin);
+
 ruta.use('/users', userRout);
 
 // ruta.use("/", (req, res) => {
@@ -13,9 +16,11 @@ ruta.use('/users', userRout);
 
 ruta.use('/auth', authRoutes);
 
+
 ruta.use("/", (req, res) => {
     res.json({ message: 'hola mundo' });
 });
+
 
 
 ruta.use("/", rutaAdmin);

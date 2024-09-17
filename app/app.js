@@ -9,7 +9,7 @@ import { checkIPBlacklist, toggleIPPrinting } from "./middlewares/checkIPBlackli
 config();
 
 const app = express();
-
+app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(checkIPBlacklist);

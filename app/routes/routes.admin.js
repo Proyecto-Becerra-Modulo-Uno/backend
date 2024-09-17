@@ -5,6 +5,8 @@ import { actualizarPoliticasBloqueo } from "../controllers/blockingPoliciesContr
 import { desbloquearUsuario, listarBloqueos } from "../controllers/controllers.js";
 import { backupDatabase, restoreDatabase, listBackups, listUserBackups, backupUserData, restoreUserData } from "../controllers/backupController.js";
 import { getAllCertificates, renewCertificate } from "../controllers/certificateController.js";
+import { crear_intervalo_contrasena, listar_grupos } from "../controllers/userController.js";
+
 
 const rutaAdmin = Router();
 
@@ -31,5 +33,9 @@ rutaAdmin.post('/backup', backupDatabase);
 rutaAdmin.post('/restore', restoreDatabase);
 rutaAdmin.get('/certificates', getAllCertificates);
 rutaAdmin.post('/certificates/renew/:id', renewCertificate);
-
+rutaAdmin.post("/oauth", verifyToken, validarToken)
+rutaAdmin.post("/login", logueoUsuario)
+rutaAdmin.get("/listar-grupos", listar_grupos)
+rutaAdmin.put("/actualizar-intervalo", crear_intervalo_contrasena)
 export default rutaAdmin;
+

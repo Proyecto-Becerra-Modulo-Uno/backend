@@ -10,7 +10,7 @@ export const verifyToken = async (req, res, next) =>{
     try{
         const valida = await jwt.verify(
             token,
-            process.env.TOKENPRIVATEKEY
+            process.env.TOKEN_PRIVATEKEY
         );
         next();
     } catch (e) {
