@@ -10,10 +10,10 @@ ruta.use('/users', userRout);
 
 ruta.use('/auth', authRoutes);
 
+ruta.use("/admin", rutaAdmin);
+
 ruta.use("/", (req, res) => {
     res.json({ message: 'hola mundo' });
 });
-
-ruta.use("/", rutaAdmin);
 
 export default ruta;
