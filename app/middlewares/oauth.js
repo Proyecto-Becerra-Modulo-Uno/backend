@@ -2,7 +2,6 @@ import session from 'express-session';
 import { error } from "../messages/browser.js"; 
 import jwt from 'jsonwebtoken';
 import { config } from 'dotenv';
-import { error } from '../messages/browr.js';
 config();
 
 
