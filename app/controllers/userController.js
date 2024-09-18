@@ -253,6 +253,7 @@ const logs = [
     { level: "FATAL", message: "Fallo Fatal: Mensaje FATAL", timestamp: new Date() }
 ];
 
+// klimber
 // Controlador para obtener logs según los niveles seleccionados
 export const getLogs = (req, res) => {
     const { levels } = req.query; // Los niveles de logs seleccionados vienen como query params
