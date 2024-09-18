@@ -310,7 +310,6 @@ export const actualizarPoliticasSeguridad = (req, res) =>   {
     }
 }
 
-
 export const actualizarPoliticasRetencion = (req, res) => {
     const { dias_inactividad } = req.body;
 
@@ -418,7 +417,6 @@ export const sendEmail = async (messages, receiverEmail, subject) => {
         throw error;
     }
 };
-
 
 export const actualizarTiempoIntentos = (req, res) => {
     const {tiempo, intentos} = req.body;
@@ -529,7 +527,7 @@ export const updatePhoneNumber = async (req, res) => {
         }
 
         const [result] = await basedatos.query(
-            "UPDATE usuarios SET telefono = ? WHERE correo = ?",
+            "UPDATE usuario SET telefono = ? WHERE email = ?",
             [phoneNumber, userEmail]
         );
 

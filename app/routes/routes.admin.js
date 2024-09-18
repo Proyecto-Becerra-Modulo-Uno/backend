@@ -6,6 +6,8 @@ import { desbloquearUsuario, listarBloqueos } from "../controllers/controllers.j
 import { backupDatabase, restoreDatabase, listBackups, listUserBackups, backupUserData, restoreUserData } from "../controllers/backupController.js";
 import { getAllCertificates, renewCertificate } from "../controllers/certificateController.js";
 import { crear_intervalo_contrasena, listar_grupos } from "../controllers/userController.js";
+// import { crear_intervalo_contrasena, listar_grupos, logueoUsuario, validarToken,updatePhoneNumber } from "../controllers/userController.js";
+
 
 const rutaAdmin = Router();
 
