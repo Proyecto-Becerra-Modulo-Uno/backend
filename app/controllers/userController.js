@@ -544,8 +544,6 @@ export const crear_intervalo_contrasena = async(req, res) => {
     }
 }
 
-
-
 export const updatePhoneNumber = async (req, res) => {
     try {
         const userEmail = req.userEmail; // Obtener el correo del usuario del `req`
@@ -574,5 +572,25 @@ export const updatePhoneNumber = async (req, res) => {
         console.error("Error detallado:", err);
         return error(req, res, 500, `Error en el servidor: ${err.message} - Código: ${err.code}`);
     }
+};
+
+const logs = [
+    { level: "DEBUG", message: "Depuración: Mensaje DEBUG", timestamp: new Date() },
+    { level: "INFO", message: "Información: Mensaje INFO", timestamp: new Date() },
+    { level: "WARN", message: "Advertencia: Mensaje WARN", timestamp: new Date() },
+    { level: "ERROR", message: "Error: Mensaje ERROR", timestamp: new Date() },
+    { level: "FATAL", message: "Fallo Fatal: Mensaje FATAL", timestamp: new Date() }
+];
+
+// Controlador para obtener logs según los niveles seleccionados
+export const getLogs = (req, res) => {
+    const { levels } = req.query; // Los niveles de logs seleccionados vienen como query params
+    const selectedLevels = levels ? levels.split(',') : []; // Convertir los niveles en un array
+
+    // Filtrar logs según los niveles seleccionados
+    const filteredLogs = logs.filter(log => selectedLevels.includes(log.level));
+
+    // Devolver los logs filtrados
+    res.json(filteredLogs);
 };
 
