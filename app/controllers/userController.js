@@ -265,3 +265,13 @@ export const getLogs = (req, res) => {
     // Devolver los logs filtrados
     res.json(filteredLogs);
 };
+
+export const exportarDatos = async (req, res) => {
+    try {
+        const respuesta = await basedatos.query('CALL SP_EXPORTAR_DATOS();');
+        success(req, res, 200, respuesta[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, err.message || "Error interno del servidor"); 
+    }
+}
