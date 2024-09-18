@@ -1,92 +1,101 @@
 // controllers/authController.js
 import { basedatos } from "../config/mysql.db.js";
-import { error, success } from "../messages/browr.js";
+import { error, success } from "../messages/browser.js";
 import { sendVerificationCode as sendTwilioCode, verifyCode as verifyTwilioCode } from "../services/twilio.service.js";
+import jwt from "jsonwebtoken";
 
 export const updateVerificationStatus = async (req, res) => {
+    const userEmail = req.userEmail; // Obtener el correo del usuario del `req`
+
+    if (!userEmail) {
+        return res.status(400).json({ message: "Email not provided in request" });
+    }
+
+    const estado = 1; // El estado para activar la verificación de dos pasos
+
     try {
-        const adminId = req.body.id_admin;
-
-        if (!adminId) {
-            return error(req, res, 400, "Faltan parámetros requeridos.");
-        }
-
-        const estado = 1;
-
+        // Actualizar el estado de verificación en la base de datos
         const [result] = await basedatos.query(
-            "CALL UpdateVerificationDouble(?, ?)",
-            [adminId, estado]
+            "UPDATE verificacion_doble SET estado_v = ? WHERE id_admin = (SELECT id_admin FROM usuario WHERE email = ?)",
+            [estado, userEmail]
         );
 
         if (result.affectedRows > 0) {
-            return success(req, res, 200, "Estado de verificación actualizado a activado correctamente.");
+            return res.status(200).json({ message: "Two-step verification status updated successfully" });
         } else {
-            return error(req, res, 404, "No se encontró el registro para actualizar.");
+            return res.status(404).json({ message: "No record found to update" });
         }
     } catch (err) {
-        console.error("Error detallado:", err);
-        return error(req, res, 500, `Error en el servidor: ${err.message} - Código: ${err.code}`);
+        console.error("Detailed error:", err);
+        return res.status(500).json({ message: `Server error: ${err.message} - Code: ${err.code}` });
     }
 };
+
 
 export const sendVerificationCode = async (req, res) => {
-    const { userId, phoneNumber } = req.body;
+    const userEmail = req.userEmail; // Obtener el correo del usuario del `req`
+
+    if (!userEmail) {
+        return res.status(400).json({ message: "Email not provided in request" });
+    }
 
     try {
-        const [rows] = await basedatos.query(
-            "SELECT estado_v FROM verificacion_doble WHERE id_admin = ?",
-            [userId]
+        // Obtener el número de teléfono del usuario a partir del correo electrónico
+        const [userRows] = await basedatos.query(
+            "SELECT telefono FROM usuario WHERE email = ?",
+            [userEmail]
         );
 
-        if (rows.length === 0) {
+        if (userRows.length === 0) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const { estado_v } = rows[0];
+        const { telefono } = userRows[0];
 
-        if (estado_v === 1) {
-            const sid = await sendTwilioCode(phoneNumber);
-            return res.status(200).json({ message: "Verification code sent", sid });
-        } else {
-            return res.status(400).json({ message: "Two-step verification is not enabled" });
-        }
+        // Enviar el código al número de teléfono
+        const sid = await sendTwilioCode(telefono);
+        return res.status(200).json({ message: "Verification code sent", sid });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
 };
+
 
 export const verifyCode = async (req, res) => {
-    const { userId, phoneNumber, code } = req.body;
+    const { code } = req.body; // Solo se recibe el código en el cuerpo de la solicitud
+
+    const userEmail = req.userEmail; // Obtener el correo del usuario del `req`
+
+    if (!userEmail) {
+        return res.status(400).json({ message: "Email not provided in request" });
+    }
 
     try {
-
-
-        const [rows] = await basedatos.query(
-            "SELECT estado_v FROM verificacion_doble WHERE id_admin = ?",
-            [userId]
+        // Obtener el número de teléfono del usuario a partir del correo electrónico
+        const [userRows] = await basedatos.query(
+            "SELECT telefono FROM usuario WHERE email = ?",
+            [userEmail]
         );
 
-        if (rows.length === 0) {
+        if (userRows.length === 0) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const { estado_v } = rows[0];
+        const { telefono } = userRows[0];
 
-        if (estado_v === 1) {
-            const isVerified = await verifyTwilioCode(phoneNumber, code);
+        // Verificar el código enviado al número de teléfono
+        const isVerified = await verifyTwilioCode(telefono, code);
 
-            if (isVerified) {
-                return res.status(200).json({ message: "Verification successful" });
-            } else {
-                return res.status(400).json({ message: "Verification failed" });
-            }
+        if (isVerified) {
+            return res.status(200).json({ message: "Verification successful" });
         } else {
-            return res.status(400).json({ message: "Two-step verification is not enabled" });
+            return res.status(400).json({ message: "Verification failed" });
         }
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
 };
+
 
 export const obtenerLogSeguridad = async(req, res) => {
     try {
@@ -98,3 +107,4 @@ export const obtenerLogSeguridad = async(req, res) => {
       res.status(500).json({ error: 'Error al obtener los datos' });
     }
 }
+
