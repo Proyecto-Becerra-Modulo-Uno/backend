@@ -275,3 +275,18 @@ export const exportarDatos = async (req, res) => {
         error(req, res, 500, err.message || "Error interno del servidor"); 
     }
 }
+
+export const permisos = async (req, res) => {
+    const{
+        idUsuario,
+         idPermiso, 
+         estado
+    } =req.body
+    try {
+        const respuesta = await basedatos.query('CALL SP_PERMITIR_PERMISOS(?)(?)(?)', [idUsuario, idPermiso, estado]);
+        success(req, res, 200, respuesta[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, err.message || "Error interno del servidor"); 
+    }
+}
