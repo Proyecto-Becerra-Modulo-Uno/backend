@@ -11,5 +11,5 @@ export const error = (req, res, status=500, message="")=>{
         error:true,
         status:status,
         body:message
-    })
+    }) 
 }
