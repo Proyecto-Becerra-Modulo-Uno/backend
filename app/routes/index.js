@@ -9,8 +9,7 @@ const ruta = Router();
 
 ruta.use("/", rutaAdmin);
 ruta.use('/users', userRout);
-ruta.use('/logs-prueba', getLogs)
-
+ruta.use('/logs-prueba', getLogs)   
 ruta.use('/auth', authRoutes);
 
 
