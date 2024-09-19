@@ -1,4 +1,3 @@
-// src/logger.js
 const winston = require('winston');
 const { createLogger, format, transports } = winston;
 const DailyRotateFile = require('winston-daily-rotate-file');
