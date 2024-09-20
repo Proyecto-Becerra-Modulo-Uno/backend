@@ -1,74 +1,11 @@
 import bcrypt from "bcrypt";
-import { basedatos } from "../config/mysql.db";
+import { basedatos } from "../config/mysql.db.js";
 import jwt from "jsonwebtoken";
-// import userAgent from "user-agent";
 import { error, success } from "../messages/browser.js";
 
 import jsPDF from 'jspdf';
-// import userAgent from "user-agent";
 
-
-export const addIpToList = async (req, res) => {
-    const { id, ipAddress, listType } = req.body;
-
-    if (!ipAddress || !listType) {
-        return error(req, res, 400, "Se requieren dirección IP y tipo de lista");
-    }
-
-    let tableName;
-    if (listType === 'white') {
-        tableName = 'lista_blanca';
-    } else if (listType === 'black') {
-        tableName = 'lista_negra';
-    } else {
-        return error(req, res, 400, "Tipo de lista inválido");
-    }
-
-    try {
-        const [result] = await basedatos.query(
-            `INSERT INTO ${tableName} (id_usuario, direccion_ip) VALUES (?, ?)`,
-            [id, ipAddress]
-        );
-
-        if (result.affectedRows === 1) {
-            success(req, res, 201, "IP agregada exitosamente a la lista");
-        } else {
-            error(req, res, 400, "No se pudo agregar la IP a la lista");
-        }
-    } catch (err) {
-        console.error("Error al agregar IP a la lista:", err);
-        error(req, res, 500, "Error interno del servidor al agregar IP a la lista");
-    }
-};
-export const listarUser = async(req, res) => {
-    try {
-        const respuesta = await basedatos.query('CALL SP_ObtenerPanelControlUsuarios();');
-        success(req, res, 200, respuesta[0][0]);
-    } catch (err) {
-        error(req, res, 200, err || "Error interno del servidor")
-    }
-}
-
-export const asignarRolUsuario = async (req, res) => {
-    const { usuarioId, rolId } = req.body;
-
-    if (!usuarioId || !rolId) {
-        return error(req, res, 400, "Se requieren usuarioId y rolId");
-    }
-
-    try {
-        const [resultado] = await basedatos.query('CALL AsignarRolUsuario(?, ?)', [usuarioId, rolId]);
-        const mensaje = resultado[0][0].mensaje;
-
-        if (mensaje === 'Rol asignado correctamente') {
-            success(req, res, 200, { mensaje });
-        } else {
-            error(req, res, 400, { mensaje });
-        }
-    } catch (err) {
-        error(req, res, 500, err.message || "Error interno del servidor");
-    }
-};
+// Crear usuario
 
 export const crearUsuario = async (req, res) => {
     const { usuario, nombre, email, telefono, contrasena, rol, estado } = req.body;
@@ -76,7 +13,6 @@ export const crearUsuario = async (req, res) => {
     if (!usuario || !nombre || !email || !passwordToUse) {
         return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña, rol");
     }
-
 
     try {
         const hash = await bcrypt.hash(passwordToUse, 10);
@@ -96,32 +32,32 @@ export const crearUsuario = async (req, res) => {
     }
 };
 
-// const validarPoliticasDeContrasena = (usuario, contrasena) => {
-//     if (contrasena.length < 8) {
-//         return "La contraseña debe tener al menos 8 caracteres.";
-//     }
+// Mostrar o enlistar usuarios
 
-//     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}:"<>?|[\];',./`~\-\\=]).+$/;
-//     if (!regex.test(contrasena)) {
-//         return "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.";
-//     }
+export const mostrarUsuarios = async(req, res) => {
+    try {
+        const respuesta = await basedatos.query('CALL SP_ObtenerPanelControlUsuarios();');
+        success(req, res, 200, respuesta[0][0]);
+    } catch (err) {
+        error(req, res, 200, err || "Error interno del servidor")
+    }
+}
 
-//     const contrasenasComunes = ['123456', 'password', 'admin', 'qwerty'];
-//     if (contrasenasComunes.includes(contrasena.toLowerCase())) {
-//         return "La contraseña es demasiado común.";
-//     }
+// Mostrar un solo usuario
+export const mostrarUsuario = async(req, res) => {
+    const {id} = req.params;
+    try {
+        const request = await basedatos.query('CALL SP_BuscarUsuario(?)', [id]);
+        success(req, res, 200, request[0][0]);
+    } catch (err) {
+        console.error(err);
+        return error(req, res, 500, "No se pudo mostrar el usuario")
+    }
+}
 
-//     if (contrasena.toLowerCase() === usuario.toLowerCase()) {
-//         return "La contraseña no puede ser igual al nombre de usuario.";
-//     }
-
-//     if (contrasena.toLowerCase().includes('password')) {
-//         return "La contraseña no puede contener la palabra 'password'.";
-//     }
 
 
-//     return null; 
-// };
+// Logueo de usuario
 
 export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
@@ -158,10 +94,11 @@ export const logueoUsuario = async (req, res) => {
 
         // Generar el payload y el token
         const payload = {
-            rol: id_rol,
+            id_usuario: id,
+            usuario: nombre_usuario,
             nombre: nombre,
             correo: email,
-            usuario: nombre_usuario,
+            rol: id_rol
         };
 
         const token = jwt.sign(payload, process.env.TOKEN_PRIVATEKEY, {
@@ -182,6 +119,74 @@ export const logueoUsuario = async (req, res) => {
         return error(req, res, 500, 'Error en el servidor, por favor inténtalo de nuevo más tarde');
     }
 };
+
+
+export const addIpToList = async (req, res) => {
+    const { id, ipAddress, listType } = req.body;
+
+    if (!ipAddress || !listType) {
+        return error(req, res, 400, "Se requieren dirección IP y tipo de lista");
+    }
+
+    let tableName;
+    if (listType === 'white') {
+        tableName = 'lista_blanca';
+    } else if (listType === 'black') {
+        tableName = 'lista_negra';
+    } else {
+        return error(req, res, 400, "Tipo de lista inválido");
+    }
+
+    try {
+        const [result] = await basedatos.query(
+            `INSERT INTO ${tableName} (id_usuario, direccion_ip) VALUES (?, ?)`,
+            [id, ipAddress]
+        );
+
+        if (result.affectedRows === 1) {
+            success(req, res, 201, "IP agregada exitosamente a la lista");
+        } else {
+            error(req, res, 400, "No se pudo agregar la IP a la lista");
+        }
+    } catch (err) {
+        console.error("Error al agregar IP a la lista:", err);
+        error(req, res, 500, "Error interno del servidor al agregar IP a la lista");
+    }
+};
+
+
+
+
+
+
+// const validarPoliticasDeContrasena = (usuario, contrasena) => {
+//     if (contrasena.length < 8) {
+//         return "La contraseña debe tener al menos 8 caracteres.";
+//     }
+
+//     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}:"<>?|[\];',./`~\-\\=]).+$/;
+//     if (!regex.test(contrasena)) {
+//         return "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.";
+//     }
+
+//     const contrasenasComunes = ['123456', 'password', 'admin', 'qwerty'];
+//     if (contrasenasComunes.includes(contrasena.toLowerCase())) {
+//         return "La contraseña es demasiado común.";
+//     }
+
+//     if (contrasena.toLowerCase() === usuario.toLowerCase()) {
+//         return "La contraseña no puede ser igual al nombre de usuario.";
+//     }
+
+//     if (contrasena.toLowerCase().includes('password')) {
+//         return "La contraseña no puede contener la palabra 'password'.";
+//     }
+
+
+//     return null; 
+// };
+
+
 
 export const bloquearUsuarioIntentos = async (req, res) => {
     const {email, estado} = req.body;
@@ -239,29 +244,6 @@ export const generarPDFRegistrosInicioSesion = async (req, res) => {
     }
 }
 
-export const registroInicioSesión = async (req, res) => {
-    const {id, ip, platform} = req.body;
-    try {
-        const request = await basedatos.query("CALL SP_INSERTAR_HISTORIAL_SESION_USUARIO(?,?,?)", [id, ip, platform]);
-        success(req, res, 201, {id:id, ip:ip, platform:platform})        
-    } catch (e) {
-        console.error(e);
-        return error(req, res, 500, "Error en el servidor")
-    }
-}
-
-export const bloquearUsuario = async(req, res) => {
-    const {id} = req.params;
-    const {estado} = req.body;
-    try {
-        const request = await basedatos.query("CALL SP_ACTUALIZAR_ESTADO_USUARIO(?,?)", [id, estado]);
-        success(req, res, 201, "Estado del usuario actualizado")
-    } catch (err) {
-        console.error(err);
-        return error(req, res, 500, "No se pudo actualizar el estado")
-    }
-}
-
 export const listarSesiones = async (req, res)=> {
     try {
         const request = await basedatos.query("CALL SP_LISTAR_REGISTROS()");
@@ -272,15 +254,6 @@ export const listarSesiones = async (req, res)=> {
     }
 }
 
-export const listarPoliticasSeguridad = async(req, res) => {
-    try {
-        const request = await basedatos.query("CALL SP_LISTAR_POLI()");
-        success(req, res, 200, request[0][0]);
-    } catch (err) {
-        console.error(err);
-        error(req, res, 500, "Error al listar políticas");
-    }
-}
 
 export const listarPoliticasYTerminos = async(req, res) => {
     try {
@@ -456,46 +429,6 @@ export const obtenerActividadesSospechosas = async (req, res) => {
     }
 };
 
-export const crearGrupo = async(req, res) => {
-    const {nombre, desc} = req.body;
-    try {
-        const request = await basedatos.query("CALL SP_INSERTAR_GRUPO(?, ?)", [nombre, desc]);
-        success(req, res, 201, "Grupo creado")
-    } catch (err) {
-        console.error(err);
-        error(req, res, 500, "Error creando grupo");
-    }
-}
-export const obtenerGrupo = async(req, res) => {
-    try {
-        const request = await basedatos.query("CALL SP_OBTENER_ÚLTIMO_GRUPO()");
-        success(req, res, 201, request[0][0])
-    } catch (err) {
-        console.error(err);
-        error(req, res, 500, "Error creando grupo");
-    }
-}
-export const addParticipantes = async (req, res) => {
-    const { correo, grupo } = req.body;
-    try {
-        const request = await basedatos.query("CALL SP_ADD_INTEGRANTE(?, ?)", [correo, grupo]);
-        success(req, res, 201, "Integrante añadido correctamente");
-    } catch (err) {
-        console.error(err);
-        error(req, res, 500, "Error añadiendo integrante");
-    }
-}
-
-export const listar_grupos = async(req, res) => {
-    try {
-        const request = await basedatos.query("CALL SP_LISTAR_GRUPOS");
-        success(req, res, 201, request[0][0]);
-    } catch (err) {
-        console.error(err);
-        error(req, res, 500, "Error listando grupos");
-    }
-}
-
 export const crear_intervalo_contrasena = async(req, res) => {
     const {tiempo} = req.body;
     try {
@@ -544,7 +477,7 @@ const logs = [
     { level: "FATAL", message: "Fallo Fatal: Mensaje FATAL", timestamp: new Date() }
 ];
 
-// klimber
+
 // Controlador para obtener logs según los niveles seleccionados
 export const getLogs = (req, res) => {
     const { levels } = req.query; // Los niveles de logs seleccionados vienen como query params
