@@ -44,4 +44,13 @@ export const desbloquearUsuario = async(req, res) => {
         return error(req, res, 500, "No se pudo actualizar el estado")
     }
 }
+module.exports = {
+    actualizarLongitudContrasena,
+};
+
+
+app.get('/api/security-data', (req, res) => {
+    const securityData = getSecurityData(); // Función para obtener datos de seguridad
+    res.json(securityData);
+});
 
