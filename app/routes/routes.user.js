@@ -6,9 +6,6 @@ import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } 
 import { actualizarComplejidadPreguntas, listarComplejidadPreguntas, listarPoliticasYTerminos,getLogs } from "../controllers/userController.js";
 import { ActualizarEstado, GETModulosYpermisos } from "../controllers/controller.modulos.permisos.js";
 
-// import { actualizarPoliticasSeguridad, actualizarTiempoIntentos, addParticipantes, asignarRolUsuario, bloquearUsuario, bloquearUsuarioIntentos, crearGrupo, crearUsuario, getLogs, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, obtenerGrupo, registroInicioSesión } from "../controllers/userController.js";
-
-
 const userRout = Router();
 
 userRout.get("/", listarUser);

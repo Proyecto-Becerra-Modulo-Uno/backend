@@ -96,6 +96,7 @@ export const verifyCode = async (req, res) => {
     }
 };
 
+
 export const obtenerLogSeguridad = async(req, res) => {
     try {
       const [rows] = await basedatos.query('CALL obtener_log_seguridad()');

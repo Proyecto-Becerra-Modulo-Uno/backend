@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { updateVerificationStatus, sendVerificationCode, verifyCode, obtenerLogSeguridad } from "../controllers/authController.js";
 import { verifyToken } from "../middlewares/oauth.js";
-// import { updateVerificationStatus, sendVerificationCode, verifyCode, obtenerLogSeguridad } from "../controllers/authController.js";
 
 
 const authRoutes = Router();
@@ -14,7 +13,13 @@ authRoutes.post('/send-code',verifyToken, sendVerificationCode);
 
 // Ruta para verificar el código recibido
 authRoutes.post('/verify-code', verifyToken, verifyCode);
+// authRoutes.post('/verify-code', verifyCode);
+authRoutes.get('/log_seguridad', obtenerLogSeguridad)
+
 authRoutes.post('/verify-code', verifyCode);
 authRoutes.get('/log_seguridad', obtenerLogSeguridad)
+
+authRoutes.post('/verify-code', verifyToken, verifyCode);
+
 
 export default authRoutes;
