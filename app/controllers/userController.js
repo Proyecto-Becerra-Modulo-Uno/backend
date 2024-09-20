@@ -71,23 +71,18 @@ export const asignarRolUsuario = async (req, res) => {
 };
 
 export const crearUsuario = async (req, res) => {
-    const { usuario, nombre, email, contrasena, contasena, rol, estado } = req.body;
-    const passwordToUse = contrasena || contasena;
+    const { usuario, nombre, email, telefono, contrasena, rol, estado } = req.body;
+    const passwordToUse = contrasena;  
     if (!usuario || !nombre || !email || !passwordToUse) {
         return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña, rol");
-    }
-
-    const passwordPolicyError = validarPoliticasDeContrasena(usuario, passwordToUse);
-    if (passwordPolicyError) {
-        return error(req, res, 400, passwordPolicyError);
     }
 
 
     try {
         const hash = await bcrypt.hash(passwordToUse, 10);
         const [respuesta] = await basedatos.query(
-            'CALL SP_CrearUsuario(?, ?, ?, ?, ?, ?);',
-            [usuario, nombre, hash, email, rol, estado]
+            'CALL SP_CrearUsuario(?, ?, ?, ?, ?, ?, ?);',
+            [usuario, nombre, hash, email, rol, estado, telefono]
         );
 
         if (respuesta.affectedRows === 1) {
@@ -101,32 +96,32 @@ export const crearUsuario = async (req, res) => {
     }
 };
 
-const validarPoliticasDeContrasena = (usuario, contrasena) => {
-    if (contrasena.length < 8) {
-        return "La contraseña debe tener al menos 8 caracteres.";
-    }
+// const validarPoliticasDeContrasena = (usuario, contrasena) => {
+//     if (contrasena.length < 8) {
+//         return "La contraseña debe tener al menos 8 caracteres.";
+//     }
 
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}:"<>?|[\];',./`~\-\\=]).+$/;
-    if (!regex.test(contrasena)) {
-        return "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.";
-    }
+//     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}:"<>?|[\];',./`~\-\\=]).+$/;
+//     if (!regex.test(contrasena)) {
+//         return "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.";
+//     }
 
-    const contrasenasComunes = ['123456', 'password', 'admin', 'qwerty'];
-    if (contrasenasComunes.includes(contrasena.toLowerCase())) {
-        return "La contraseña es demasiado común.";
-    }
+//     const contrasenasComunes = ['123456', 'password', 'admin', 'qwerty'];
+//     if (contrasenasComunes.includes(contrasena.toLowerCase())) {
+//         return "La contraseña es demasiado común.";
+//     }
 
-    if (contrasena.toLowerCase() === usuario.toLowerCase()) {
-        return "La contraseña no puede ser igual al nombre de usuario.";
-    }
+//     if (contrasena.toLowerCase() === usuario.toLowerCase()) {
+//         return "La contraseña no puede ser igual al nombre de usuario.";
+//     }
 
-    if (contrasena.toLowerCase().includes('password')) {
-        return "La contraseña no puede contener la palabra 'password'.";
-    }
+//     if (contrasena.toLowerCase().includes('password')) {
+//         return "La contraseña no puede contener la palabra 'password'.";
+//     }
 
 
-    return null; 
-};
+//     return null; 
+// };
 
 export const logueoUsuario = async (req, res) => {
     const { usuario, contrasena } = req.body;
