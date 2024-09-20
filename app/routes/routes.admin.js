@@ -42,4 +42,3 @@ rutaAdmin.put("/actualizar-intervalo", crear_intervalo_contrasena)
 rutaAdmin.put("/update-phone", verifyToken, updatePhoneNumber);
 
 export default rutaAdmin;
-

@@ -4,6 +4,7 @@ import { addIpToList, generarPDFRegistrosInicioSesion, obtenerActividadesSospech
 import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } from "../controllers/userController.js";
 
 import { actualizarComplejidadPreguntas, listarComplejidadPreguntas, listarPoliticasYTerminos,getLogs } from "../controllers/userController.js";
+import { ActualizarEstado, GETModulosYpermisos } from "../controllers/controller.modulos.permisos.js";
 
 // import { actualizarPoliticasSeguridad, actualizarTiempoIntentos, addParticipantes, asignarRolUsuario, bloquearUsuario, bloquearUsuarioIntentos, crearGrupo, crearUsuario, getLogs, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, obtenerGrupo, registroInicioSesión } from "../controllers/userController.js";
 
@@ -40,6 +41,7 @@ userRout.get("/ultimo-grupo", obtenerGrupo);
 userRout.put("/estado/:id", bloquearUsuario);
 userRout.put("/bloquearIntentos",  bloquearUsuarioIntentos);
 userRout.get("/logs-prueba", getLogs)
-
+userRout.get("/modulos", GETModulosYpermisos);
+userRout.post("/estado", ActualizarEstado);
 
 export default userRout;
