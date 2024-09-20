@@ -509,8 +509,7 @@ export const crear_intervalo_contrasena = async(req, res) => {
 
 export const updatePhoneNumber = async (req, res) => {
     try {
-        const userEmail = req.userEmail; // Obtener el correo del usuario del `req`
-
+        const {userEmail} = req;
         if (!userEmail) {
             return error(req, res, 400, "No se pudo obtener el correo del usuario.");
         }

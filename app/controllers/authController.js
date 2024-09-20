@@ -5,7 +5,7 @@ import { sendVerificationCode as sendTwilioCode, verifyCode as verifyTwilioCode 
 import jwt from "jsonwebtoken";
 
 export const updateVerificationStatus = async (req, res) => {
-    const userEmail = req.userEmail; // Obtener el correo del usuario del `req`
+    const { userEmail } = req;
 
     if (!userEmail) {
         return res.status(400).json({ message: "Email not provided in request" });
@@ -33,7 +33,7 @@ export const updateVerificationStatus = async (req, res) => {
 
 
 export const sendVerificationCode = async (req, res) => {
-    const userEmail = req.userEmail; // Obtener el correo del usuario del `req`
+    const { userEmail } = req;
 
     if (!userEmail) {
         return res.status(400).json({ message: "Email not provided in request" });
@@ -64,7 +64,7 @@ export const sendVerificationCode = async (req, res) => {
 export const verifyCode = async (req, res) => {
     const { code } = req.body; // Solo se recibe el código en el cuerpo de la solicitud
 
-    const userEmail = req.userEmail; // Obtener el correo del usuario del `req`
+    const { userEmail } = req;
 
     if (!userEmail) {
         return res.status(400).json({ message: "Email not provided in request" });
