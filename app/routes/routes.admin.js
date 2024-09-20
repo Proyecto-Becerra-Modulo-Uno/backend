@@ -6,8 +6,7 @@ import { desbloquearUsuario, listarBloqueos } from "../controllers/controllers.j
 import { backupDatabase, restoreDatabase, listBackups, listUserBackups, backupUserData, restoreUserData } from "../controllers/backupController.js";
 import { getAllCertificates, renewCertificate } from "../controllers/certificateController.js";
 import { crear_intervalo_contrasena, listar_grupos } from "../controllers/userController.js";
-// import { crear_intervalo_contrasena, listar_grupos, logueoUsuario, validarToken,updatePhoneNumber } from "../controllers/userController.js";
-
+import { contarActividadesPorDia, contarAdministradoresPorEstado, contarCertificadosPorEstado, obtenerActividadesSospechosas, obtenerAdministradoresActivos, obtenerEstadoCertificados, obtenerPoliticasBloqueo } from "../controllers/securityController.js";
 
 const rutaAdmin = Router();
 
@@ -41,5 +40,26 @@ rutaAdmin.get("/listar-grupos", listar_grupos)
 rutaAdmin.put("/actualizar-intervalo", crear_intervalo_contrasena)
 rutaAdmin.put("/update-phone", verifyToken, updatePhoneNumber);
 
-export default rutaAdmin;
 
+// Ruta para obtener actividades sospechosas
+rutaAdmin.get('/actividades-sospechosas', obtenerActividadesSospechosas);
+
+// Ruta para contar actividades por día
+rutaAdmin.get('/actividades-por-dia', contarActividadesPorDia);
+
+// Ruta para obtener el estado de los certificados
+rutaAdmin.get('/estado-certificados', obtenerEstadoCertificados);
+
+// Ruta para contar certificados por estado
+rutaAdmin.get('/certificados-por-estado', contarCertificadosPorEstado);
+
+// Ruta para obtener administradores activos
+rutaAdmin.get('/administradores-activos', obtenerAdministradoresActivos);
+
+// Ruta para contar administradores por estado
+rutaAdmin.get('/administradores-por-estado', contarAdministradoresPorEstado);
+
+// Ruta para obtener políticas de bloqueo
+rutaAdmin.get('/politicas-bloqueo', obtenerPoliticasBloqueo);
+
+export default rutaAdmin;

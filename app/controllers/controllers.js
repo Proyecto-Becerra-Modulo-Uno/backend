@@ -44,4 +44,3 @@ export const desbloquearUsuario = async(req, res) => {
         return error(req, res, 500, "No se pudo actualizar el estado")
     }
 }
-

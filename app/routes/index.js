@@ -12,12 +12,11 @@ ruta.use('/users', userRout);
 ruta.use('/logs-prueba', getLogs)   
 ruta.use('/auth', authRoutes);
 
+ruta.use("/admin", rutaAdmin);
 
 ruta.use("/", (req, res) => {
     res.json({ message: 'hola mundo' });
 });
-
-
 
 ruta.use("/", rutaAdmin);
 ruta.use('/users',userRout);

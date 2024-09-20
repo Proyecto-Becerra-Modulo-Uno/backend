@@ -2,11 +2,9 @@ import Router from "express";
 import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión,actualizarTiempoIntentos } from "../controllers/userController.js";
 import { addIpToList, generarPDFRegistrosInicioSesion, obtenerActividadesSospechosas, obtenerRegistrosInicioSesion } from "../controllers/userController.js";
 import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } from "../controllers/userController.js";
-
 import { actualizarComplejidadPreguntas, listarComplejidadPreguntas, listarPoliticasYTerminos,getLogs } from "../controllers/userController.js";
-
-// import { actualizarPoliticasSeguridad, actualizarTiempoIntentos, addParticipantes, asignarRolUsuario, bloquearUsuario, bloquearUsuarioIntentos, crearGrupo, crearUsuario, getLogs, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, obtenerGrupo, registroInicioSesión } from "../controllers/userController.js";
-
+import { ActualizarEstado, GETModulosYpermisos } from "../controllers/controller.modulos.permisos.js";
+import {  exportarDatos, permisos } from "../controllers/userController.js";
 
 const userRout = Router();
 
@@ -40,6 +38,13 @@ userRout.get("/ultimo-grupo", obtenerGrupo);
 userRout.put("/estado/:id", bloquearUsuario);
 userRout.put("/bloquearIntentos",  bloquearUsuarioIntentos);
 userRout.get("/logs-prueba", getLogs)
-
+userRout.get("/modulos", GETModulosYpermisos);
+userRout.post("/estado", ActualizarEstado);
+userRout.get("/logs-prueba", getLogs);
+userRout.get("/exportar", exportarDatos)
+userRout.get("/permisos", permisos)
+userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad)
+userRout.get("/listar-politicas", listarPoliticasSeguridad)
+userRout.post("/datos", actualizarPoliticasRetencion);
 
 export default userRout;
