@@ -43,7 +43,8 @@ userRout.post("/estado", ActualizarEstado);
 userRout.get("/logs-prueba", getLogs);
 userRout.get("/exportar", exportarDatos)
 userRout.get("/permisos", permisos)
-
-
+userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad)
+userRout.get("/listar-politicas", listarPoliticasSeguridad)
+userRout.post("/datos", actualizarPoliticasRetencion);
 
 export default userRout;
