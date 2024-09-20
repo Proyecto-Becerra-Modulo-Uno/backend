@@ -544,6 +544,7 @@ const logs = [
     { level: "FATAL", message: "Fallo Fatal: Mensaje FATAL", timestamp: new Date() }
 ];
 
+// klimber
 // Controlador para obtener logs según los niveles seleccionados
 export const getLogs = (req, res) => {
     const { levels } = req.query; // Los niveles de logs seleccionados vienen como query params
@@ -556,3 +557,27 @@ export const getLogs = (req, res) => {
     res.json(filteredLogs);
 };
 
+export const exportarDatos = async (req, res) => {
+    try {
+        const respuesta = await basedatos.query('CALL SP_EXPORTAR_DATOS();');
+        success(req, res, 200, respuesta[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, err.message || "Error interno del servidor"); 
+    }
+}
+
+export const permisos = async (req, res) => {
+    const{
+        idUsuario,
+         idPermiso, 
+         estado
+    } =req.body
+    try {
+        const respuesta = await basedatos.query('CALL SP_PERMITIR_PERMISOS(?)(?)(?)', [idUsuario, idPermiso, estado]);
+        success(req, res, 200, respuesta[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, err.message || "Error interno del servidor"); 
+    }
+}
