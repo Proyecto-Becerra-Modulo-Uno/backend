@@ -3,7 +3,7 @@ import Router from "express";
 import { crearUsuario, mostrarUsuarios, mostrarUsuario, logueoUsuario} from "../controllers/users.controllers.js";
 
 
-import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, listarSesiones,actualizarTiempoIntentos } from "../controllers/users.controllers.js";
+import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, actualizarTiempoIntentos } from "../controllers/users.controllers.js";
 import { addIpToList, generarPDFRegistrosInicioSesion, obtenerActividadesSospechosas, obtenerRegistrosInicioSesion } from "../controllers/users.controllers.js";
 import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } from "../controllers/users.controllers.js";
 import { actualizarComplejidadPreguntas, listarComplejidadPreguntas, listarPoliticasYTerminos,getLogs } from "../controllers/users.controllers.js";
@@ -17,14 +17,12 @@ const userRout = Router();
 
 userRout.post("/users", crearUsuario);
 userRout.get("/users", mostrarUsuarios);
-userRout.get("/users/:id", mostrarUsuario);
 userRout.post('/users/login', logueoUsuario);
 
 
-// userRout.get("/inicios", listarSesiones)
+// Rutas desorganizadas
 
-
-
+// userRout.get("/users/:id", mostrarUsuario);
 // userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad);
 // userRout.get("/listarPoliticasYTerminos", listarPoliticasYTerminos);
 // userRout.put("/actualizarComplePreguntas", actualizarComplejidadPreguntas);

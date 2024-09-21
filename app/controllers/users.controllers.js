@@ -244,15 +244,9 @@ export const generarPDFRegistrosInicioSesion = async (req, res) => {
     }
 }
 
-export const listarSesiones = async (req, res)=> {
-    try {
-        const request = await basedatos.query("CALL SP_LISTAR_REGISTROS()");
-        success(req, res, 200, request[0][0])
-    } catch (err) {
-        console.error(err);
-        return error(req, res, 500, "No se pudo traer la lista de sesiones")
-    }
-}
+
+
+
 
 
 export const listarPoliticasYTerminos = async(req, res) => {

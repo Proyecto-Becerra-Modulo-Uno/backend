@@ -1,14 +1,11 @@
 import { Router } from "express";
 import { verifyToken } from "../middlewares/oauth.js";
 
-import { registroInicioSesion, listarPoliticasSeguridad, asignarRolUsuario, bloquearUsuario } from "../controllers/admin.controllers.js";
+import { asignarRolUsuario, bloquearUsuario, desbloquearUsuario, listarBloqueos, registroInicioSesion, listarPoliticasSeguridad, listarSesiones} from "../controllers/admin.controllers.js";
 
 import { crearGrupo, addParticipantes, obtenerGrupo, listar_grupos } from "../controllers/groups.controllers.js";
 
-
-import { logueoUsuario, updatePhoneNumber, validarToken } from "../controllers/users.controllers.js";
-import { actualizarPoliticasBloqueo } from "../controllers/blockingPoliciesController.js"; // Importa el controlador
-import { desbloquearUsuario, listarBloqueos } from "../controllers/controllers.js";
+import { updatePhoneNumber, validarToken } from "../controllers/users.controllers.js";
 import { backupDatabase, restoreDatabase, listBackups, listUserBackups, backupUserData, restoreUserData } from "../controllers/backupController.js";
 import { getAllCertificates, renewCertificate } from "../controllers/certificateController.js";
 import { crear_intervalo_contrasena} from "../controllers/users.controllers.js";
@@ -16,10 +13,12 @@ import { contarActividadesPorDia, contarAdministradoresPorEstado, contarCertific
 
 const rutaAdmin = Router();
 
+// Rutas organizadas
 
 rutaAdmin.post('/admin/asignar-rol', asignarRolUsuario);
 rutaAdmin.put("/admin/estado/:id", bloquearUsuario);
 rutaAdmin.put("/admin/desbloquear-usuario", desbloquearUsuario);
+rutaAdmin.get("/admin/cuentas-bloqueadas", listarBloqueos);
 
 // Historial de sesiones iniciadas
 
@@ -37,14 +36,14 @@ rutaAdmin.get("/admin/ultimo-grupo", obtenerGrupo);
 rutaAdmin.get("/admin/listar-grupos", listar_grupos);
 
 
-
-rutaAdmin.get("/admin/cuentas-bloqueadas", listarBloqueos);
+rutaAdmin.get("/admin/lista-sesiones", listarSesiones)
 
 rutaAdmin.get("/oauth", verifyToken, validarToken);
 
 // Nueva ruta para actualizar las políticas de bloqueo
-rutaAdmin.post("/update-blocking-policies", verifyToken, actualizarPoliticasBloqueo);
+// rutaAdmin.post("/update-blocking-policies", verifyToken, actualizarPoliticasBloqueo);
 
+// Rutas desorganizadas
 
 rutaAdmin.get("/token", verifyToken);
 rutaAdmin.get('/user-backups', listUserBackups);
@@ -57,8 +56,6 @@ rutaAdmin.get('/certificates', getAllCertificates);
 rutaAdmin.post('/certificates/renew/:id', renewCertificate);
 rutaAdmin.post("/oauth", verifyToken, validarToken)
 rutaAdmin.get("/oauth", verifyToken, validarToken)
-rutaAdmin.post("/login", logueoUsuario)
-rutaAdmin.get("/listar-grupos", listar_grupos)
 rutaAdmin.put("/actualizar-intervalo", crear_intervalo_contrasena)
 rutaAdmin.put("/update-phone", verifyToken, updatePhoneNumber);
 
