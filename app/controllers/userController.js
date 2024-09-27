@@ -363,3 +363,41 @@ export const crear_intervalo_contrasena = async(req, res) => {
         error(req, res, 500, "Error listando grupos");
     }
 }
+
+
+
+
+
+export const listarPreguntaSeguridad = async(req, res) => {
+    const { id_usuario } = req.body;
+    try {
+        const request = await basedatos.query("CALL SP_LISTAR_PREGUNTA_SEGURIDAD(?)", [id_usuario]);
+        success(req, res, 201, request[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error listando preguntas de seguridad");
+    }
+}
+
+
+export const crearPreguntaSeguridad = async(req, res) => {
+    const { id_usuario, pregunta, respuesta } = req.body;
+    try {
+        const request = await basedatos.query("CALL SP_CREAR_PPREGUNTAS_SEGURIDAD(?, ?, ?)", [id_usuario, pregunta, respuesta]);
+        success(req, res, 201, "Pregunta de seguridad creada exitosamente");
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error No se pudo añadir pregunta de seguridad");
+    }
+}
+
+export const actualizarPreguntaSeguridad = async(req, res) => {
+    const { id, pregunta, respuesta } = req.body;
+    try {
+        const request = await basedatos.query("CALL SP_ACTUALIZAR_PREGUNTAS_SEGURIDAD(?, ?, ?)", [id, pregunta, respuesta]);
+        success(req, res, 201, "Pregunta de seguridad actualizada exitosamente");
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error No se pudo editar pregunta de seguridad");
+    }
+}

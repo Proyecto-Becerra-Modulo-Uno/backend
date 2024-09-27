@@ -1,5 +1,5 @@
 import Router from "express";
-import { actualizarComplejidadPreguntas, actualizarPoliticasSeguridad, actualizarTiempoIntentos, addParticipantes, asignarRolUsuario, bloquearUsuario, bloquearUsuarioIntentos, crearGrupo, crearUsuario, listarComplejidadPreguntas, listarPoliticasSeguridad, listarPoliticasYTerminos, listarSesiones, listarUser, logueoUsuario, obtenerGrupo, registroInicioSesión } from "../controllers/userController.js";
+import { actualizarComplejidadPreguntas, actualizarPoliticasSeguridad, actualizarPreguntaSeguridad, actualizarTiempoIntentos, addParticipantes, asignarRolUsuario, bloquearUsuario, bloquearUsuarioIntentos, crearGrupo, crearPreguntaSeguridad, crearUsuario, listarComplejidadPreguntas, listarPoliticasSeguridad, listarPoliticasYTerminos, listarPreguntaSeguridad, listarSesiones, listarUser, logueoUsuario, obtenerGrupo, registroInicioSesión } from "../controllers/userController.js";
 
 const userRout = Router();
 
@@ -21,4 +21,9 @@ userRout.post("/add-integrante", addParticipantes);
 userRout.get("/ultimo-grupo", obtenerGrupo);
 userRout.put("/estado/:id", bloquearUsuario);
 userRout.put("/bloquearIntentos",  bloquearUsuarioIntentos);
+
+userRout.post("/listarPreguntaSeguridad", listarPreguntaSeguridad);
+userRout.post("/crearPreguntaSeguridad", crearPreguntaSeguridad);
+userRout.put("/actualizarPreguntaSeguridad",  actualizarPreguntaSeguridad);
+
 export default userRout;
