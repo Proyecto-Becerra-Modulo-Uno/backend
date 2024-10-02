@@ -34,6 +34,6 @@ export const checkIPBlacklist = async (req, res, next) => {
 };
 
 export const toggleIPPrinting = (enable) => {
-  DEBUG_PRINT_IP = enable;
+  let DEBUG_PRINT_IP = enable;
   console.log(`Impresión de IP ${enable ? 'activada' : 'desactivada'}`);
 };
