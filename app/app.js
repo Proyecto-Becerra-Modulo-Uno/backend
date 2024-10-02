@@ -14,7 +14,9 @@ app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(checkIPBlacklist);
+
 // Desactiva la impresión de IP después de un tiempo (por ejemplo, 5 minutos)
+
 setTimeout(() => {
   toggleIPPrinting(true);
 }, 5 * 60 * 1000);
@@ -29,7 +31,7 @@ app.use("/", ruta);
 
 app.get('/', (req, res) => {
     logger.info('Solicitud recibida en la ruta raíz');
-    res.send('Hola Mundo');
+    res.send('Ejecución de backend');
   });
 
 export default app;

@@ -24,23 +24,5 @@ export const actualizarLongitudContrasena = async (req, res) => {
 
 
 
-export const listarBloqueos = async (req, res)=> {
-    try {
-        const request = await basedatos.query("CALL SP_CUENTAS_BLOQUEADAS()");
-        success(req, res, 200, request[0][0])
-    } catch (err) {
-        console.error(err);
-        return error(req, res, 500, "No se pudo traer la lista de bloqueos")
-    }
-}
 
-export const desbloquearUsuario = async(req, res) => {
-    const { id } = req.body;
-    try {
-        const request = await basedatos.query(`CALL SP_CUENTAS_DESBLOQUEADAS(?)`, [id]);
-        success(req, res, 200, "si se pudo actulizar el estado")
-    } catch (err) {
-        console.error(err);
-        return error(req, res, 500, "No se pudo actualizar el estado")
-    }
-}
+
