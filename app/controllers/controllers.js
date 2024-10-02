@@ -1,6 +1,7 @@
-const pool = require('../db'); // Asegúrate de que esta sea la conexión a tu base de datos
+import { basedatos } from "../config/mysql.db";
+import { success, error } from "../messages/browser.js";
 
-const actualizarLongitudContrasena = async (req, res) => {
+export const actualizarLongitudContrasena = async (req, res) => {
     const { longitud_minima_contrasena } = req.body;
 
     if (!longitud_minima_contrasena || isNaN(longitud_minima_contrasena)) {
@@ -9,8 +10,8 @@ const actualizarLongitudContrasena = async (req, res) => {
 
     try {
         // aca se va a llamar el procedimiento almacenado
-        await pool.query(
-            'CALL sp_actualizar_longitud_contrasena(?)', 
+        await db.query(
+            'CALL sp_actualizar_longitud_contrasena', 
             [longitud_minima_contrasena]
         );
 
@@ -21,6 +22,25 @@ const actualizarLongitudContrasena = async (req, res) => {
     }
 };
 
-module.exports = {
-    actualizarLongitudContrasena,
-};
+
+
+export const listarBloqueos = async (req, res)=> {
+    try {
+        const request = await basedatos.query("CALL SP_CUENTAS_BLOQUEADAS()");
+        success(req, res, 200, request[0][0])
+    } catch (err) {
+        console.error(err);
+        return error(req, res, 500, "No se pudo traer la lista de bloqueos")
+    }
+}
+
+export const desbloquearUsuario = async(req, res) => {
+    const { id } = req.body;
+    try {
+        const request = await basedatos.query(`CALL SP_CUENTAS_DESBLOQUEADAS(?)`, [id]);
+        success(req, res, 200, "si se pudo actulizar el estado")
+    } catch (err) {
+        console.error(err);
+        return error(req, res, 500, "No se pudo actualizar el estado")
+    }
+}

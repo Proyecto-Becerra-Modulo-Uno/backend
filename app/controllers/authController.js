@@ -1,6 +1,6 @@
 // controllers/authController.js
 import { basedatos } from "../config/mysql.db.js";
-import { error, success } from "../messages/browr.js";
+import { error, success } from "../messages/browser.js";
 import { sendVerificationCode as sendTwilioCode, verifyCode as verifyTwilioCode } from "../services/twilio.service.js";
 import jwt from "jsonwebtoken";
 
@@ -95,4 +95,16 @@ export const verifyCode = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+
+
+export const obtenerLogSeguridad = async(req, res) => {
+    try {
+      const [rows] = await basedatos.query('CALL obtener_log_seguridad()');
+      //res.json(rows[0]);
+      success(req, res, 200, rows[0])
+    } catch (error) {
+      console.error('Error al obtener los datos:', error);
+      res.status(500).json({ error: 'Error al obtener los datos' });
+    }
+}
 
