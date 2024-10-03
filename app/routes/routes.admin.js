@@ -10,6 +10,7 @@ import { backupDatabase, restoreDatabase, listBackups, listUserBackups, backupUs
 import { getAllCertificates, renewCertificate } from "../controllers/certificateController.js";
 import { crear_intervalo_contrasena} from "../controllers/users.controllers.js";
 import { contarActividadesPorDia, contarAdministradoresPorEstado, contarCertificadosPorEstado, obtenerActividadesSospechosas, obtenerAdministradoresActivos, obtenerEstadoCertificados, obtenerPoliticasBloqueo } from "../controllers/securityController.js";
+import { getRequest, updateRequest } from "../controllers/request.controllers.js";
 
 const rutaAdmin = Router();
 
@@ -59,7 +60,6 @@ rutaAdmin.get("/oauth", verifyToken, validarToken)
 rutaAdmin.put("/actualizar-intervalo", crear_intervalo_contrasena)
 rutaAdmin.put("/update-phone", verifyToken, updatePhoneNumber);
 
-
 // Ruta para obtener actividades sospechosas
 rutaAdmin.get('/actividades-sospechosas', obtenerActividadesSospechosas);
 
@@ -81,4 +81,8 @@ rutaAdmin.get('/administradores-por-estado', contarAdministradoresPorEstado);
 // Ruta para obtener políticas de bloqueo
 rutaAdmin.get('/politicas-bloqueo', obtenerPoliticasBloqueo);
 
+
+// Solicitudes
+rutaAdmin.get('/solicitudes', getRequest);
+rutaAdmin.put('/solicitudes', updateRequest)
 export default rutaAdmin;
