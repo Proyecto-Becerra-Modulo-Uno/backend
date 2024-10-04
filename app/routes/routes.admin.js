@@ -10,7 +10,7 @@ import { backupDatabase, restoreDatabase, listBackups, listUserBackups, backupUs
 import { getAllCertificates, renewCertificate } from "../controllers/certificateController.js";
 import { crear_intervalo_contrasena} from "../controllers/users.controllers.js";
 import { contarActividadesPorDia, contarAdministradoresPorEstado, contarCertificadosPorEstado, obtenerActividadesSospechosas, obtenerAdministradoresActivos, obtenerEstadoCertificados, obtenerPoliticasBloqueo } from "../controllers/securityController.js";
-import { getRequest, updateRequest } from "../controllers/request.controllers.js";
+import { createRequest, getRequest, updateRequest } from "../controllers/request.controllers.js";
 
 const rutaAdmin = Router();
 
@@ -85,4 +85,5 @@ rutaAdmin.get('/politicas-bloqueo', obtenerPoliticasBloqueo);
 // Solicitudes
 rutaAdmin.get('/solicitudes', getRequest);
 rutaAdmin.put('/solicitudes', updateRequest)
+rutaAdmin.post('/solicitudes', createRequest);
 export default rutaAdmin;
