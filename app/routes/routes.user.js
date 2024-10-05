@@ -9,6 +9,7 @@ import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } 
 import { actualizarComplejidadPreguntas, listarComplejidadPreguntas, listarPoliticasYTerminos,getLogs } from "../controllers/users.controllers.js";
 import { ActualizarEstado, GETModulosYpermisos } from "../controllers/controller.modulos.permisos.js";
 import {  exportarDatos, permisos } from "../controllers/users.controllers.js";
+import { getRequestId } from "../controllers/request.controllers.js";
 
 const userRout = Router();
 
@@ -45,5 +46,5 @@ userRout.post('/users/login', logueoUsuario);
 // userRout.get("/permisos", permisos)
 // userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad)
 userRout.post("/datos", actualizarPoliticasRetencion);
-
+userRout.get("/solicitudes/:id", getRequestId);
 export default userRout;
