@@ -9,7 +9,7 @@ import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } 
 import { actualizarComplejidadPreguntas, listarComplejidadPreguntas, listarPoliticasYTerminos,getLogs } from "../controllers/users.controllers.js";
 import { ActualizarEstado, GETModulosYpermisos } from "../controllers/controller.modulos.permisos.js";
 import {  exportarDatos, permisos } from "../controllers/users.controllers.js";
-import { getRequestId } from "../controllers/request.controllers.js";
+import { exportData, getRequestId } from "../controllers/request.controllers.js";
 
 const userRout = Router();
 
@@ -47,4 +47,5 @@ userRout.post('/users/login', logueoUsuario);
 // userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad)
 userRout.post("/datos", actualizarPoliticasRetencion);
 userRout.get("/solicitudes/:id", getRequestId);
+userRout.get("/solicitudes/datos/:id_usuario", exportData);
 export default userRout;

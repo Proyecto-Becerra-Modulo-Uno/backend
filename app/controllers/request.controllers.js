@@ -38,3 +38,12 @@ export const createRequest = async(req, res) => {
         error(req, res, 500, err)
     }
 }
+export const exportData = async (req, res) => {
+    const {id_usuario} = req.params;
+    try {
+        const request = await basedatos.query("CALL SP_EXPORTAR_DATOS(?)", [id_usuario]);
+        success(req, res, 200, request[0]);
+    } catch (err) {
+        error(req, res, 500, err)
+    }
+}    
