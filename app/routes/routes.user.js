@@ -22,7 +22,7 @@ userRout.post('/users/login', logueoUsuario);
 
 // Rutas desorganizadas
 
-// userRout.get("/users/:id", mostrarUsuario);
+userRout.get("/users/:id", mostrarUsuario);
 // userRout.put("/actualizar-politicas", actualizarPoliticasSeguridad);
 // userRout.get("/listarPoliticasYTerminos", listarPoliticasYTerminos);
 // userRout.put("/actualizarComplePreguntas", actualizarComplejidadPreguntas);
