@@ -1,7 +1,7 @@
 import Router from "express";
 
 
-import {crearUsuario, listarUser, logueoUsuario, contrasena } from "../controllers/userController.js";
+import { crearUsuario, listarUser, logueoUsuario, contrasena, sesionesActivas } from "../controllers/userController.js";
 
 import { asignarRolUsuario, changeUserStatus, crearUsuario, listarUser } from "../controllers/userController.js";
 
@@ -16,12 +16,12 @@ userRout.post("/", crearUsuario);
 
 // userRout.post('/asignar-rol', asignarRolUsuario);
 userRout.post('/login', logueoUsuario)
-userRout.post('/contrasena', contrasena )
+userRout.post('/contrasena', contrasena)
 
 
 userRout.post('/asignar-rol', asignarRolUsuario);
 userRout.put('/:userId/status', changeUserStatus);
-
+userRout.get('/sesiones-activas', sesionesActivas);
 
 export default userRout;
 
