@@ -5,6 +5,22 @@ import jwt from "jsonwebtoken";
 import jsPDF from 'jspdf';
 import userAgent from "user-agent";
 
+export const listarSesionesMoviles = async (req, res) => {
+    try {
+        // Filtra las sesiones de dispositivos móviles
+        const [request] = await basedatos.query("SELECT * FROM historial_sesion_usuario WHERE dispositivo LIKE '%Android%' OR dispositivo LIKE '%iPhone%' OR dispositivo LIKE '%iOS%'");
+
+        if (request.length > 0) {
+            success(req, res, 200, request);
+        } else {
+            success(req, res, 200, "No se encontraron sesiones en dispositivos móviles.");
+        }
+    } catch (err) {
+        console.error(err);
+        return error(req, res, 500, "Error al listar las sesiones móviles");
+    }
+};
+
 export const addIpToList = async (req, res) => {
     const { id, ipAddress, listType } = req.body;
 

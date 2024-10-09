@@ -1,5 +1,5 @@
 import Router from "express";
-import { actualizarPoliticasSeguridad, actualizarTiempoIntentos, addIpToList, asignarRolUsuario, bloquearUsuario, crearUsuario, generarPDFRegistrosInicioSesion, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, obtenerActividadesSospechosas, obtenerRegistrosInicioSesion, registroInicioSesión } from "../controllers/userController.js";
+import { actualizarPoliticasSeguridad, actualizarTiempoIntentos, addIpToList, asignarRolUsuario, bloquearUsuario, crearUsuario, generarPDFRegistrosInicioSesion, listarPoliticasSeguridad, listarSesiones, listarSesionesMoviles, listarUser, logueoUsuario, obtenerActividadesSospechosas, obtenerRegistrosInicioSesion, registroInicioSesión } from "../controllers/userController.js";
 
 const userRout = Router();
 
@@ -18,5 +18,6 @@ userRout.get("/actividades-sospechosas", obtenerActividadesSospechosas);
 userRout.get('/registros-inicio-sesion', obtenerRegistrosInicioSesion);
 userRout.get('/registros-inicio-sesion-pdf', generarPDFRegistrosInicioSesion);
 userRout.post('/addIpToList', addIpToList);
+userRout.get('/sesiones-moviles', listarSesionesMoviles);
 
 export default userRout;
