@@ -7,6 +7,40 @@ import { error, success } from "../messages/browser.js";
 import jsPDF from 'jspdf';
 // import userAgent from "user-agent";
 
+// Cambiar contraseña en el perfil
+export const cambiarContraseña = async (req, res) => {
+    const { id_usuario, password_actual, nueva_password } = req.body;
+
+    try {
+        // Verificamos la contraseña actual llamando al procedimiento almacenado
+        const [result] = await basedatos.query("CALL SP_CAMBIAR_CONTRASEÑA(?, ?, ?, @resultado)", [id_usuario, password_actual, null]);
+        
+        if (result.length > 0) {
+            const storedPassword = result[0].password;
+
+            // Comparar contraseña actual con la encriptada
+            const isMatch = await bcrypt.compare(password_actual, storedPassword);
+            if (!isMatch) {
+                error(req, res, 500, "La contraseña actual es incorrecta.");
+            }
+
+            // Encriptar la nueva contraseña
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(nueva_password, salt);
+
+            // Llamar al procedimiento para actualizar la nueva contraseña
+            await basedatos.query("CALL SP_CAMBIAR_CONTRASEÑA(?, ?, ?)", [id_usuario, password_actual, hashedPassword]);
+
+            success(req, res, 201, "Contraseña cambiada con éxito.");
+        } else {
+            error(req, res, 500, "No se encontró el usuario o contraseña actual incorrecta.");
+        }
+
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error en el servidor, no se pudo cambiar la contraseña.");
+    }
+};
 
 export const addIpToList = async (req, res) => {
     const { id, ipAddress, listType } = req.body;
@@ -40,6 +74,7 @@ export const addIpToList = async (req, res) => {
         error(req, res, 500, "Error interno del servidor al agregar IP a la lista");
     }
 };
+
 export const listarUser = async(req, res) => {
     try {
         const respuesta = await basedatos.query('CALL SP_ObtenerPanelControlUsuarios();');

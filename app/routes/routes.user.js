@@ -1,5 +1,5 @@
 import Router from "express";
-import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión,actualizarTiempoIntentos, listarPreguntaSeguridad, crearPreguntaSeguridad, actualizarPreguntaSeguridad } from "../controllers/userController.js";
+import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión,actualizarTiempoIntentos, listarPreguntaSeguridad, crearPreguntaSeguridad, actualizarPreguntaSeguridad, cambiarContraseña } from "../controllers/userController.js";
 import { addIpToList, generarPDFRegistrosInicioSesion, obtenerActividadesSospechosas, obtenerRegistrosInicioSesion } from "../controllers/userController.js";
 import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } from "../controllers/userController.js";
 import { actualizarComplejidadPreguntas, listarComplejidadPreguntas, listarPoliticasYTerminos,getLogs } from "../controllers/userController.js";
@@ -44,5 +44,6 @@ userRout.post("/crearPreguntaSeguridad", crearPreguntaSeguridad);
 userRout.put("/actualizarPreguntaSeguridad",  actualizarPreguntaSeguridad);
 userRout.get("/logs-prueba", getLogs)
 
+userRout.post("/cambiarContraseña", cambiarContraseña)
 
 export default userRout;
