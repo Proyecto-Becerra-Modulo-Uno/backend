@@ -1,10 +1,10 @@
 import Router from "express";
-import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión,actualizarTiempoIntentos, listarPreguntaSeguridad, crearPreguntaSeguridad, actualizarPreguntaSeguridad, cambiarContraseña } from "../controllers/userController.js";
+import { actualizarPoliticasRetencion, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión, listarPreguntaSeguridad, crearPreguntaSeguridad, actualizarPreguntaSeguridad, cambiarContrasena } from "../controllers/userController.js";
 import { addIpToList, generarPDFRegistrosInicioSesion, obtenerActividadesSospechosas, obtenerRegistrosInicioSesion } from "../controllers/userController.js";
 import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } from "../controllers/userController.js";
 import { actualizarComplejidadPreguntas, listarComplejidadPreguntas, listarPoliticasYTerminos,getLogs } from "../controllers/userController.js";
 
-// import { actualizarPoliticasSeguridad, actualizarTiempoIntentos, addParticipantes, asignarRolUsuario, bloquearUsuario, bloquearUsuarioIntentos, crearGrupo, crearUsuario, getLogs, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, obtenerGrupo, registroInicioSesión } from "../controllers/userController.js";
+import { actualizarPoliticasSeguridad, actualizarTiempoIntentos } from "../controllers/userController.js";
 
 
 const userRout = Router();
@@ -44,6 +44,6 @@ userRout.post("/crearPreguntaSeguridad", crearPreguntaSeguridad);
 userRout.put("/actualizarPreguntaSeguridad",  actualizarPreguntaSeguridad);
 userRout.get("/logs-prueba", getLogs)
 
-userRout.post("/cambiarContraseña", cambiarContraseña)
+userRout.post("/cambiarContrasena", cambiarContrasena)
 
 export default userRout;

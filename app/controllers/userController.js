@@ -8,37 +8,49 @@ import jsPDF from 'jspdf';
 // import userAgent from "user-agent";
 
 // Cambiar contraseña en el perfil
-export const cambiarContraseña = async (req, res) => {
+export const cambiarContrasena = async (req, res) => {
     const { id_usuario, password_actual, nueva_password } = req.body;
 
     try {
-        // Verificamos la contraseña actual llamando al procedimiento almacenado
-        const [result] = await basedatos.query("CALL SP_CAMBIAR_CONTRASEÑA(?, ?, ?, @resultado)", [id_usuario, password_actual, null]);
-        
-        if (result.length > 0) {
-            const storedPassword = result[0].password;
+        // Paso 1: Obtener la contraseña encriptada actual de la base de datos
+        const [result] = await basedatos.query("SELECT contrasena_hash FROM usuario WHERE id = ?", [id_usuario]);
 
-            // Comparar contraseña actual con la encriptada
-            const isMatch = await bcrypt.compare(password_actual, storedPassword);
-            if (!isMatch) {
-                error(req, res, 500, "La contraseña actual es incorrecta.");
-            }
+        if (result.length === 0) {
+            return error(req, res, 404, "Usuario no encontrado.");
+        }
 
-            // Encriptar la nueva contraseña
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(nueva_password, salt);
+        const storedPassword = result[0].contrasena_hash;
 
-            // Llamar al procedimiento para actualizar la nueva contraseña
-            await basedatos.query("CALL SP_CAMBIAR_CONTRASEÑA(?, ?, ?)", [id_usuario, password_actual, hashedPassword]);
+        // Paso 2: Comparar la contraseña actual ingresada con la que está almacenada en la base de datos
+        const isMatch = await bcrypt.compare(password_actual, storedPassword);
+        if (!isMatch) {
+            return error(req, res, 400, "La contraseña actual es incorrecta.");
+        }
 
-            success(req, res, 201, "Contraseña cambiada con éxito.");
+        // Paso 3: Encriptar la nueva contraseña
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(nueva_password, salt);
+
+        // Paso 4: Llamar al procedimiento para actualizar la nueva contraseña en la base de datos
+        await basedatos.query("CALL SP_CAMBIAR_CONTRASENA(?, ?, ?, @resultado)", [
+            id_usuario,
+            password_actual,  // Ya validada, se puede enviar
+            hashedPassword
+        ]);
+
+        // Obtener el valor del parámetro de salida `resultado`
+        const [[{ resultado }]] = await basedatos.query("SELECT @resultado AS resultado");
+
+        // Comprobar el valor de `resultado` del procedimiento
+        if (resultado === 1) {
+            return success(req, res, 201, "Contraseña cambiada con éxito.");
         } else {
-            error(req, res, 500, "No se encontró el usuario o contraseña actual incorrecta.");
+            return error(req, res, 500, "Error en el servidor al cambiar la contraseña.");
         }
 
     } catch (err) {
         console.error(err);
-        error(req, res, 500, "Error en el servidor, no se pudo cambiar la contraseña.");
+        return error(req, res, 500, "Error en el servidor, no se pudo cambiar la contraseña.");
     }
 };
 
