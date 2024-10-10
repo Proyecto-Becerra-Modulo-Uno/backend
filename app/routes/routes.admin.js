@@ -20,7 +20,6 @@ rutaAdmin.get("/bloqueos", listarBloqueos);
 
 rutaAdmin.put("/desbloqueo", desbloquearUsuario);
 
-rutaAdmin.post("/login", logueoUsuario);
 
 // Nueva ruta para actualizar las políticas de bloqueo
 rutaAdmin.post("/update-blocking-policies", verifyToken, actualizarPoliticasBloqueo);
