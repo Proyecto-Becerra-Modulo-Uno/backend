@@ -9,13 +9,14 @@ import { checkIPBlacklist, toggleIPPrinting } from "./middlewares/checkIPBlackli
 
 config();
 
+
 const app = express();
 app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(checkIPBlacklist);
 
-// Desactiva la impresión de IP después de un tiempo (por ejemplo, 5 minutos)
+// Desactiva la impresión de IP después de un tiempo (por ejemplo, 5 minutos)...
 
 setTimeout(() => {
   toggleIPPrinting(true);
