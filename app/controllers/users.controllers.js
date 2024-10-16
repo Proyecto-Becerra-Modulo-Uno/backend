@@ -5,8 +5,20 @@ import { error, success } from "../messages/browser.js";
 
 import jsPDF from 'jspdf';
 
-// Crear usuario
 
+// Ver descripcion de roles
+export const mostrarDescripcionRol = async(req, res) => {
+    const { id_usuario } = req.body;
+    try {
+        const request = await basedatos.query("CALL SP_MOSTRAR_ROLES(?)", [id_usuario]);
+        success(req, res, 201, request[0][0]);
+    } catch (err) {
+        console.error(err);
+        error(req, res, 500, "Error listando descripción roles");
+    }
+}
+
+// Crear usuario
 export const crearUsuario = async (req, res) => {
     const { usuario, nombre, email, telefono, contrasena, rol, estado } = req.body;
     const passwordToUse = contrasena;  

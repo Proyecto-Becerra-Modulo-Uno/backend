@@ -1,6 +1,6 @@
 import Router from "express";
 
-import { crearUsuario, mostrarUsuarios, mostrarUsuario, logueoUsuario} from "../controllers/users.controllers.js";
+import { crearUsuario, mostrarUsuarios, mostrarUsuario, logueoUsuario, mostrarDescripcionRol} from "../controllers/users.controllers.js";
 
 
 import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, actualizarTiempoIntentos } from "../controllers/users.controllers.js";
@@ -18,6 +18,7 @@ const userRout = Router();
 userRout.post("/users", crearUsuario);
 userRout.get("/users", mostrarUsuarios);
 userRout.post('/users/login', logueoUsuario);
+userRout.post('/mostrarDescripcionRol', mostrarDescripcionRol);
 
 
 // Rutas desorganizadas
