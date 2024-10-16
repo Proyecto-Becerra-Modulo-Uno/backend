@@ -1,5 +1,5 @@
 import Router from "express";
-import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión,actualizarTiempoIntentos } from "../controllers/userController.js";
+import { actualizarPoliticasRetencion, actualizarPoliticasSeguridad, bloquearUsuario, crearUsuario, listarPoliticasSeguridad, listarSesiones, listarUser, logueoUsuario, registroInicioSesión,actualizarTiempoIntentos, sesionesActivas } from "../controllers/userController.js";
 import { addIpToList, generarPDFRegistrosInicioSesion, obtenerActividadesSospechosas, obtenerRegistrosInicioSesion } from "../controllers/userController.js";
 import {  addParticipantes, bloquearUsuarioIntentos, crearGrupo, obtenerGrupo } from "../controllers/userController.js";
 
@@ -40,6 +40,7 @@ userRout.get("/ultimo-grupo", obtenerGrupo);
 userRout.put("/estado/:id", bloquearUsuario);
 userRout.put("/bloquearIntentos",  bloquearUsuarioIntentos);
 userRout.get("/logs-prueba", getLogs)
+userRout.get('/sesiones-activas', sesionesActivas);
 
 
 export default userRout;

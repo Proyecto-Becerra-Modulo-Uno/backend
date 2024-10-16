@@ -566,7 +566,6 @@ export const getLogs = (req, res) => {
 export const sesionesActivas = async (req, res) => {
   try {
     const respuesta = await basedatos.query("CALL SP_LISTAR_SESIONES_ACTIVAS();");
-    console.log(respuesta[0][0]);
     success(req, res, 201, respuesta[0][0]);
   } catch (err) {
     console.error(err);
