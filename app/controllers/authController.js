@@ -109,10 +109,8 @@ export const generarCodigoRecuperacion = async (req, res) => {
           .json({ success: false, message: "Correo no registrado" });
       }
   
-      // Generar código
       const codigoRecuperacion = crypto.randomInt(100000, 999999).toString();
   
-      // Guardar código
       await basedatos.query("CALL SP_INSERTAR_CODIGO_DE_VERIFICACION(?, ?)", [
         email,
         codigoRecuperacion,
