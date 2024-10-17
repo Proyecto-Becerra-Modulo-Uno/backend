@@ -1,7 +1,13 @@
 // controllers/authController.js
 import { basedatos } from "../config/mysql.db.js";
 import { error, success } from "../messages/browr.js";
-import { sendVerificationCode as sendTwilioCode, verifyCode as verifyTwilioCode } from "../services/twilio.service.js";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import {
+    enviarEmailRecuperacion,
+    sendVerificationCode as sendTwilioCode,
+    verifyCode as verifyTwilioCode,
+  } from "../services/twilio.service.js";
 
 export const updateVerificationStatus = async (req, res) => {
     try {
@@ -87,3 +93,98 @@ export const verifyCode = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+
+export const generarCodigoRecuperacion = async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+      const usuario = await basedatos.query(
+        "CALL SP_OBTENER_USUARIO_POR_EMAIL(?)",
+        [email]
+      );
+  
+      if (usuario.length === 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Correo no registrado" });
+      }
+  
+      // Generar código
+      const codigoRecuperacion = crypto.randomInt(100000, 999999).toString();
+  
+      // Guardar código
+      await basedatos.query("CALL SP_INSERTAR_CODIGO_DE_VERIFICACION(?, ?)", [
+        email,
+        codigoRecuperacion,
+      ]);
+  
+      const resultado = await enviarEmailRecuperacion(email, codigoRecuperacion);
+  
+      if (resultado.success) {
+        return res
+          .status(200)
+          .json({ success: true, message: "Código de recuperación enviado" });
+      } else {
+        return res
+          .status(500)
+          .json({ success: false, message: "Error enviando el correo" });
+      }
+    } catch (error) {
+      console.error("Error en el controlador:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Error interno del servidor" });
+    }
+  };
+  
+  export const verificarCodigo = async (req, res) => {
+    const { codigo } = req.body;
+  
+    try {
+      const [result] = await basedatos.query("CALL SP_VERIFICAR_CODIGO(?);", [
+        codigo,
+      ]);
+  
+      const existe = result[0][0].existe;
+  
+      if (existe === 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Código Incorrecto" });
+      }
+  
+      return res
+        .status(200)
+        .json({ success: true, message: "Código verificado correctamente" });
+    } catch (error) {
+      console.error("Error al verificar el código:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Error en el servidor" });
+    }
+  };
+  
+  export const restablecerContrasena = async (req, res) => {
+    const { email, nuevaContrasena } = req.body;
+  
+    try {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(nuevaContrasena, salt);
+  
+      const resultado = await basedatos.query(
+        "CALL SP_CAMBIAR_CONTRASENA(?, ?)",
+        [email, hashedPassword]
+      );
+  
+      res.status(200).json({
+        success: true,
+        message: "Contraseña restablecida correctamente.",
+      });
+    } catch (error) {
+      console.error("Error al restablecer la contraseña:", error);
+      res.status(500).json({
+        success: false,
+        message: error.sqlMessage || "Error al restablecer la contraseña.",
+      });
+    }
+  };

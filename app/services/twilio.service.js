@@ -1,5 +1,6 @@
 // services/twilio.service.js
 import { client, serviceSid } from "../config/twilio.pool.js";
+import sgMail from "@sendgrid/mail";
 
 export async function sendVerificationCode(phoneNumber) {
     try {
@@ -25,3 +26,20 @@ export async function verifyCode(phoneNumber, code) {
         throw new Error(`Failed to verify code: ${error.message}`);
     }
 }
+
+export const enviarEmailRecuperacion = async (email, codigoRecuperacion) => {
+    try {
+        const msg = {
+        to: email,
+        from: 'maeinela251987@gmail.com',
+        subject: 'Recuperación de contraseña',
+        text: `Tu código de recuperación es: ${codigoRecuperacion}`,
+        html: `<strong>Tu código de recuperación es: ${codigoRecuperacion}</strong>`,
+        }
+        await sgMail.send(msg);
+        return { success: true, message: 'Correo enviado con exito'};
+    } catch (error) {
+        console.error('Error enviando correo:', error);
+        return { success: false, message: 'Error enviando correo'};
+    }
+};
