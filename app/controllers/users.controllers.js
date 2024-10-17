@@ -5,23 +5,10 @@ import { error, success } from "../messages/browser.js";
 
 import jsPDF from 'jspdf';
 
-
-// Ver descripcion de roles
-export const mostrarDescripcionRol = async(req, res) => {
-    const { id_usuario } = req.body;
-    try {
-        const request = await basedatos.query("CALL SP_MOSTRAR_ROLES(?)", [id_usuario]);
-        success(req, res, 201, request[0][0]);
-    } catch (err) {
-        console.error(err);
-        error(req, res, 500, "Error listando descripción roles");
-    }
-}
-
 // Crear usuario
 export const crearUsuario = async (req, res) => {
     const { usuario, nombre, email, telefono, contrasena, rol, estado } = req.body;
-    const passwordToUse = contrasena;  
+    const passwordToUse = contrasena;
     if (!usuario || !nombre || !email || !passwordToUse) {
         return error(req, res, 400, "Todos los campos son requeridos: usuario, nombre, email, contraseña, rol");
     }
@@ -46,7 +33,7 @@ export const crearUsuario = async (req, res) => {
 
 // Mostrar o enlistar usuarios
 
-export const mostrarUsuarios = async(req, res) => {
+export const mostrarUsuarios = async (req, res) => {
     try {
         const respuesta = await basedatos.query('CALL SP_ObtenerPanelControlUsuarios();');
         success(req, res, 200, respuesta[0][0]);
@@ -56,8 +43,8 @@ export const mostrarUsuarios = async(req, res) => {
 }
 
 // Mostrar un solo usuario
-export const mostrarUsuario = async(req, res) => {
-    const {id} = req.params;
+export const mostrarUsuario = async (req, res) => {
+    const { id } = req.params;
     try {
         const request = await basedatos.query('CALL SP_BuscarUsuario(?)', [id]);
         success(req, res, 200, request[0][0]);
@@ -201,18 +188,18 @@ export const addIpToList = async (req, res) => {
 
 
 export const bloquearUsuarioIntentos = async (req, res) => {
-    const {email, estado} = req.body;
+    const { email, estado } = req.body;
     try {
         const request = await basedatos.query("CALL SP_actualizarEstadoPorEmail(?, ?)", [email, estado]);
-        success(req, res, 201, "Tu cuenta ha sido bloqueada por exceder el límite de intentos")        
+        success(req, res, 201, "Tu cuenta ha sido bloqueada por exceder el límite de intentos")
     } catch (e) {
         console.error(e);
         return error(req, res, 500, "Error en el servidor")
     }
 }
 
-export const validarToken = (req, res) =>{
-    success(req, res, 201, {"token" : "El token es valido"});
+export const validarToken = (req, res) => {
+    success(req, res, 201, { "token": "El token es valido" });
 }
 
 export const obtenerRegistrosInicioSesion = async (req, res) => {
@@ -228,20 +215,20 @@ export const obtenerRegistrosInicioSesion = async (req, res) => {
 export const generarPDFRegistrosInicioSesion = async (req, res) => {
     try {
         const [registros] = await basedatos.query("CALL SP_OBTENER_REGISTROS_INICIO_SESION()");
-        
+
         const doc = new jsPDF();
-        doc.setFontSize(12); 
+        doc.setFontSize(12);
         doc.text("Registros de Inicio de Sesión", 20, 10);
 
         let yPos = 20;
         registros[0].forEach((registro, index) => {
             const texto = `${index + 1}. Usuario ID: ${registro.usuario_id}, IP: ${registro.direccion_ip}, Dispositivo: ${registro.dispositivo}, Fecha: ${registro.fecha_inicio_sesion}`;
-            const textoDividido = doc.splitTextToSize(texto, 170); 
+            const textoDividido = doc.splitTextToSize(texto, 170);
 
             doc.text(textoDividido, 20, yPos);
-            yPos += (textoDividido.length * 10); 
+            yPos += (textoDividido.length * 10);
 
-            if (yPos > 280) { 
+            if (yPos > 280) {
                 doc.addPage();
                 yPos = 20;
             }
@@ -261,7 +248,7 @@ export const generarPDFRegistrosInicioSesion = async (req, res) => {
 
 
 
-export const listarPoliticasYTerminos = async(req, res) => {
+export const listarPoliticasYTerminos = async (req, res) => {
     try {
         const request = await basedatos.query("CALL SP_LISTAR_POLICITA_Y_TERMINOS()");
         success(req, res, 200, request[0][0]);
@@ -271,8 +258,8 @@ export const listarPoliticasYTerminos = async(req, res) => {
     }
 }
 
-export const actualizarPoliticasSeguridad = (req, res) =>   {
-    const {longitud, duracion, frecuencia, intervalo, cant_min_minusculas, cant_min_mayusculas, cant_min_numeros, cant_min_caracteres_esp} = req.body;
+export const actualizarPoliticasSeguridad = (req, res) => {
+    const { longitud, duracion, frecuencia, intervalo, cant_min_minusculas, cant_min_mayusculas, cant_min_numeros, cant_min_caracteres_esp } = req.body;
     try {
         const request = basedatos.query("CALL SP_ACTUALIZAR_POLITICA(?, ?, ?, ?)", [longitud, duracion, frecuencia, intervalo])
         const requestt = basedatos.query("CALL SP_ACTUALIZAR_TERMINOS_CONTRASENA(?, ?, ?, ?, ?)", [longitud, cant_min_minusculas, cant_min_mayusculas, cant_min_numeros, cant_min_caracteres_esp])
@@ -288,11 +275,11 @@ export const actualizarPoliticasRetencion = (req, res) => {
     const { dias_inactividad } = req.body;
 
     console.log(`Días de inactividad configurados: ${dias_inactividad}`);
- 
+
     res.send('Política de retención actualizada correctamente');
 };
 
-export const listarComplejidadPreguntas = async(req, res) =>   {
+export const listarComplejidadPreguntas = async (req, res) => {
     try {
         const request = await basedatos.query("CALL SP_LISTAR_COMPLEJIDAD_PREGUNTAS()");
         success(req, res, 200, request[0][0]);
@@ -302,8 +289,8 @@ export const listarComplejidadPreguntas = async(req, res) =>   {
     }
 }
 
-export const actualizarComplejidadPreguntas = (req, res) =>   {
-    const {caracteres_pregunta, caracteres_respuesta, cant_preguntas} = req.body;
+export const actualizarComplejidadPreguntas = (req, res) => {
+    const { caracteres_pregunta, caracteres_respuesta, cant_preguntas } = req.body;
     try {
         const request = basedatos.query("CALL SP_ACTUALIZAR_COMPLEJIDAD_PREGUNTAS(?, ?, ?)", [caracteres_pregunta, caracteres_respuesta, cant_preguntas])
         success(req, res, 201, "Complejidad de preguntas actualizadas")
@@ -356,8 +343,8 @@ export const contrasena = async (req, res) => {
       </div>
   </body>
   </html>
-            `; 
-        } 
+            `;
+        }
     } catch (err) {
         error(req, res, 400, err);
     }
@@ -374,7 +361,7 @@ export const sendEmail = async (messages, receiverEmail, subject) => {
                 pass: process.env.EMAIL_CLAVE
             },
             tls: {
-                rejectUnauthorized: false 
+                rejectUnauthorized: false
             }
         });
 
@@ -393,7 +380,7 @@ export const sendEmail = async (messages, receiverEmail, subject) => {
 };
 
 export const actualizarTiempoIntentos = (req, res) => {
-    const {tiempo, intentos} = req.body;
+    const { tiempo, intentos } = req.body;
     try {
         const request = basedatos.query("CALL SP_ACTUALIZAR_TIEMPO_INTENTOS(?, ?)", [intentos, tiempo]);
         success(req, res, 201, "Intentos y tiempo actualizados")
@@ -403,7 +390,7 @@ export const actualizarTiempoIntentos = (req, res) => {
     }
 }
 
-export const changeUserStatus = async(req, res) => {
+export const changeUserStatus = async (req, res) => {
     const { userId } = req.params;
     const { newStatus } = req.body;
     try {
@@ -435,8 +422,8 @@ export const obtenerActividadesSospechosas = async (req, res) => {
     }
 };
 
-export const crear_intervalo_contrasena = async(req, res) => {
-    const {tiempo} = req.body;
+export const crear_intervalo_contrasena = async (req, res) => {
+    const { tiempo } = req.body;
     try {
         const request = await basedatos.query("CALL SP_ACTUALIZAR_INTERVALO_CAMBIO_CONTRASENA(?)", [tiempo]);
         success(req, res, 201, "Intervalo actualizado");
@@ -448,7 +435,7 @@ export const crear_intervalo_contrasena = async(req, res) => {
 
 export const updatePhoneNumber = async (req, res) => {
     try {
-        const {userEmail} = req;
+        const { userEmail } = req;
         if (!userEmail) {
             return error(req, res, 400, "No se pudo obtener el correo del usuario.");
         }
@@ -502,21 +489,21 @@ export const exportarDatos = async (req, res) => {
         success(req, res, 200, respuesta[0][0]);
     } catch (err) {
         console.error(err);
-        error(req, res, 500, err.message || "Error interno del servidor"); 
+        error(req, res, 500, err.message || "Error interno del servidor");
     }
 }
 
 export const permisos = async (req, res) => {
-    const{
+    const {
         idUsuario,
-         idPermiso, 
-         estado
-    } =req.body
+        idPermiso,
+        estado
+    } = req.body
     try {
         const respuesta = await basedatos.query('CALL SP_PERMITIR_PERMISOS(?)(?)(?)', [idUsuario, idPermiso, estado]);
         success(req, res, 200, respuesta[0][0]);
     } catch (err) {
         console.error(err);
-        error(req, res, 500, err.message || "Error interno del servidor"); 
+        error(req, res, 500, err.message || "Error interno del servidor");
     }
 }
