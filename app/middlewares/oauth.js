@@ -13,7 +13,7 @@ export const verifyToken = (req, res, next) => {
   }
 
   jwt.verify(token, process.env.TOKENPRIVATEKEY, (err, decoded) => {
-      if (err) {
+      if (err) {  
           return error(req, res, 401, err.message);
       }
       req.userEmail = decoded.correo; // Añadir el correo del usuario al `req`
